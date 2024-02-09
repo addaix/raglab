@@ -1,2 +1,6 @@
+
 # raglab
-Backend of a system to explore RAG operations
+There is a bit of an air of mystery around this project...
+
+
+To install:	```pip install raglab```
