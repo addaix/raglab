@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      #chat-container {
+        width: 80%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      #messages {
+        height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      #message-form {
+        display: flex;
+        justify-content: space-between;
+      }
+      #message-input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+      }
+      #send-button {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-container">
+      <div id="messages">
+        <!-- Messages will be displayed here -->
+      </div>
+      <div id="progress-container" style="display: none">
+        Je réfléchis... *UX design*
+      </div>
+      <form id="message-form" autocomplete="off">
+        <input
+          type="text"
+          id="message-input"
+          placeholder="Enter your message..."
+          autocomplete="off"
+        />
+        <button type="submit" id="send-button">Send</button>
+      </form>
+    </div>
+
+    <script>
+      // JavaScript for sending and receiving messages
+      const messagesDiv = document.getElementById("messages");
+      const messageInput = document.getElementById("message-input");
+      const messageForm = document.getElementById("message-form");
+      const progressContainer = document.getElementById("progress-container");
+
+      // Function to add a new message to the chat
+      function addMessage(sender, message) {
+        const messageElement = document.createElement("div");
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      function showProgress() {
+        progressContainer.style.display = "block";
+      }
+
+      function hideProgress() {
+        progressContainer.style.display = "none";
+      }
+      // Event listener for form submission
+      messageForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const message = messageInput.value.trim();
+        messageInput.value = "";
+        showProgress();
+        if (message !== "") {
+          addMessage("You", message);
+          // Send the message to the server
+          fetch("/raglab/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+          })
+            .then((response) => {
+              hideProgress();
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              response.text().then((message) => {
+                // Add the message to the chat window
+                addMessage("AI", message);
+                messageInput.value = "";
+              });
+            })
+
+            .catch((error) => {
+              console.error(
+                "There was a problem with your fetch operation:",
+                error
+              );
+            });
+        } else {
+          hideProgress();
+        }
+      });
+    </script>
+  </body>
+</html>
