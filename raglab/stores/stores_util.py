@@ -58,3 +58,4 @@ mk_text_store = partial(mk_local_user_store, rootdir_to_local_store=TextFiles, f
 mk_json_store = partial(mk_local_user_store, rootdir_to_local_store=JsonFiles, filename_suffix='.json')
 mk_pickle_store = partial(mk_local_user_store, rootdir_to_local_store=PickleFiles, filename_suffix='.pkl')
 LocalDillStore = wrap_kvs(Files, data_of_obj=dill.dumps, obj_of_data=dill.loads)
+
