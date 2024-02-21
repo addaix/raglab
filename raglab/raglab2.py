@@ -73,7 +73,7 @@ class Raglab2:
         vectorstore: Union[str, VectorStore] = 'Chroma',
         embedding='GPT4AllEmbeddings',
         prompt=DFLT_PROMPT,
-        model=GPT4All(model="orca-mini-3b-gguf2-q4_0"), #all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
+        model=GPT4All(model="models/orca-mini-3b-gguf2-q4_0"), #all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
     ):
         self.vectorstore = vectorstore
         self.embedding = embedding

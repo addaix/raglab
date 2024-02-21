@@ -20,9 +20,9 @@ def home():
 def login():
     username = request.form['username']
     password = request.form['password']
-    
+
     if username == USER and password == PASSWORD:
-        # TODO SECURITY THINGS 
+        # TODO SECURITY THINGS
         return redirect(url_for(chat))
 
     else:
@@ -49,15 +49,15 @@ lab = raglab2("default")
 def chat() :
     if(request.method == "GET") :
         return render_template("chat.html")
-    
-    elif request.method == "POST" : 
+
+    elif request.method == "POST" :
         message = request.json["message"]
         response = lab.ask(message)
         return Response(status=200, response=response)
-    
+
     else :
         return Response(status=666)
-    
+
 @app.route("/raglab/chat/dataset", methods=["POST"])
 def chat_change_dataset(name) :
     lab = raglab2(name)
@@ -77,7 +77,7 @@ def get_datasets() :
     return Response(status=200, response=response)
 
 @app.route("/raglab/datasets", methods=["POST"])
-def get_datasets() :
+def post_datasets() :
     client = ChromaClient()
 
     datasets = []
