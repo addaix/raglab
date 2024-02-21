@@ -1,5 +1,5 @@
 from flask import Flask, Response, request, redirect, session, url_for, render_template
-from raglab.retrieval.chroma_client import ChromaClient
+from retrieval.chroma_client import ChromaClient
 from raglab2 import *
 
 app = Flask(__name__)

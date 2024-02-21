@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . /app
 
+COPY .env /app
+
 RUN pip install flask gpt4all langchain chroma lkj config2py
 
 RUN pip install lkj
