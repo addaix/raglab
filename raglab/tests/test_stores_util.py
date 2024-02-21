@@ -1,5 +1,7 @@
 """Testing store utils"""
 
+import os
+
 from dol import temp_dir
 from raglab.stores.stores_util import (
     mk_local_user_store,
