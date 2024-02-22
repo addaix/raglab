@@ -1,43 +1,28 @@
-import sqlite3
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from raglab.stores.repos import RepoJson
+from py2http import mk_flat, run_app
 
 class FiddleManager :
-    def __init__(self, user_id) :
-        self.user_id
+    def __init__(self) :
+        self.repo = RepoJson()
 
-    def create(name) :
-        engine = create_engine('sqlite:///userdb.db', echo=True)
-        
-        new_user = FiddleView(username=self.user_id, email='john@example.com')
-        session.add(new_user)
-        session.commit()
+    def create(self, user_id:str, name:str) :
+        print("Creating object")
+        self.repo.create(user_id+name, "")
 
-    def get(id) :
-        pass
+    def get(self, user_id:str, name:str) -> str :
+        return self.repo.get(user_id+name)
 
-    def update(id, value) :
-        pass
+    def update(self, user_id:str, name:str, value:str) :
+        return self.repo.update(user_id+name, value)
 
-    def delete(id) :
-        pass
+    def delete(self, user_id:str, name:str) :
+        return self.repo.delete(user_id+name)
 
+def run_fiddle_manager() :
+    create = mk_flat(FiddleManager, FiddleManager.create, func_name="create")
+    get = mk_flat(FiddleManager, FiddleManager.get, func_name="get")
+    update = mk_flat(FiddleManager, FiddleManager.update, func_name="update")
+    delete = mk_flat(FiddleManager, FiddleManager.delete, func_name="delete")
+    fns = [create, get, update, delete]
 
-Base = declarative_base()
-
-class FiddleView(Base):
-    __tablename__ = 'fiddle_views'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    json = Column(String)
-
-
-# Créer les tables dans la base de données
-Base.metadata.create_all(engine)
-
-# Créer une session
-Session = sessionmaker(bind=engine)
-session = Session()
-
+    run_app(fns, publish_openapi=True, publish_swagger=True)
