@@ -1,4 +1,5 @@
 from flask import Flask, Response, request, redirect, session, url_for, render_template
+from raglab.fiddle_manager.service import run_fiddle_manager
 from retrieval.chroma_client import ChromaClient
 from raglab2 import *
 
@@ -23,7 +24,7 @@ def login():
 
     if username == USER and password == PASSWORD:
         # TODO SECURITY THINGS
-        return redirect(url_for(chat))
+        return redirect(url_for('chat'))
 
     else:
         return render_template('login.html', error="Invalid credentials")
@@ -52,7 +53,9 @@ def chat() :
 
     elif request.method == "POST" :
         message = request.json["message"]
+        print(f"Query from {request.host} : {message}")
         response = lab.ask(message)
+        print(f"Answer to {request.host} : {response}")
         return Response(status=200, response=response)
 
     else :
@@ -108,5 +111,5 @@ def post_query():
 def search():
     return f'<h1>In progress...</h1>'
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     app.run(debug=True)
