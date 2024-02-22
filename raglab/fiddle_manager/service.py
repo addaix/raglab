@@ -1,4 +1,4 @@
-from raglab.stores.repos import RepoJson
+from stores.repos import RepoJson
 from py2http import mk_flat, run_app
 
 class FiddleManager :
