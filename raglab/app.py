@@ -1,5 +1,5 @@
 from flask import Flask, Response, request, redirect, session, url_for, render_template
-from raglab.fiddle_manager.service import run_fiddle_manager
+from fiddle_manager.service import run_fiddle_manager
 from retrieval.chroma_client import ChromaClient
 from raglab2 import *
 
