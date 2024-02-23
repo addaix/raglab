@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </head>
+  <body>
+    <div class="center-align valign-wrapper">
+      <div class="z-depth-1 row" style="padding: 50px">
+        <form action="{{ url_for('login') }}" method="post">
+          <div class="input-field">
+            <input id="username" type="text" class="validate" name="username" />
+            <label for="username">ID</label>
+          </div>
+
+          <div class="input-field">
+            <input id="password" type="text" class="validate" name="password" />
+            <label for="password">Password</label>
+          </div>
+
+          <button class="btn waves-effect waves-light" type="submit">
+            Let's go
+          </button>
+        </form>
+        {% if error %}
+        <p style="color: red">{{ error }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>
