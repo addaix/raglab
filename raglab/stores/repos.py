@@ -1,4 +1,4 @@
-from raglab.stores import stores_util
+from stores import stores_util
 
 from dol import *
 
