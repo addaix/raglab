@@ -38,19 +38,23 @@ from dotenv import load_dotenv
 from lkj import import_object, chunker, clog  # pip install lkj
 from config2py import get_configs_folder_for_app  # pip install config2py
 
-from langchain_core.vectorstores import VectorStore
-from langchain_community.vectorstores.chroma import Chroma
-
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models.llms import LLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
+from langchain_core.vectorstores import VectorStore
 
 from langchain_community.llms.gpt4all import GPT4All
 from langchain_community.embeddings.gpt4all import GPT4AllEmbeddings
+from langchain_community.vectorstores.chroma import Chroma
 
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
+
+from stores.repos import RepoJson
+from util import StoreAccess
 
 segmenter = partial(chunker, chk_size=1000, include_tail=True)
 
@@ -70,11 +74,11 @@ DFLT_PROMPT = ChatPromptTemplate.from_template(DFLT_PROMPT_TEMPLATE)
 class Raglab2:
     def __init__(
         self,
-        vectorstore: Union[str, VectorStore] = 'Chroma',
-        embedding='GPT4AllEmbeddings',
-        prompt=DFLT_PROMPT,
-        model=GPT4All(model="orca-mini-3b-gguf2-q4_0"), #all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
-    ):
+        vectorstore:VectorStore,
+        embedding:Embeddings,
+        prompt:PromptTemplate,
+        model:LLM, # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
+    ) :
         self.vectorstore = vectorstore
         self.embedding = embedding
         self.prompt = prompt
@@ -122,6 +126,34 @@ class Raglab2:
     def ask(self, query: str):
         return self.chain.invoke(query)     
 
+class RaglabSession :
+
+    def __init__(self, app:Raglab2) :
+        self.raglab_app = app
+    
+    def ask(self, query:str) :
+        return self.raglab_app.ask(quer)
+
+
+class RaglabSessionBuilder :
+
+    def build(
+        user:str,
+        name:str,
+        vectorstore:VectorStore,
+        embedding:Embeddings,
+        prompt:PromptTemplate,
+        model:LLM, # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
+    )-> RaglabSession :
+
+        raglab = Raglab2(vectorstore, embedding, prompt, model)
+        session = RaglabSession(raglab)
+        session.raglab_app = raglab
+
+        return session
+
+    def restore(user:str, name:str) -> RaglabSession:
+        pass
 
 from langchain.docstore.document import Document
 from dol import wrap_kvs
@@ -140,33 +172,4 @@ def object_resolver(module_dot_path, obj_name=None, *args, **kwargs):
         return partial(object_resolver, module_dot_path)
     return import_object('.'.join([module_dot_path, obj_name]))
 
-def raglab2(
-    dataset_name: str,
-    *,
-    vectorstore: Union[str, VectorStore] = 'Chroma',
-    embedding: str = 'GPT4AllEmbeddings',
-    persist_rootdir: Optional[str] = DFLT_VECTORSTORES_PERSIST_ROOTDIR,
-    vector_stores_module_dot_path='langchain_community.vectorstores.chroma',
-    embeddings_module_dot_path='langchain.embeddings',
-) -> Raglab2 :
-    """
-    Create a Raglab2 instance with the given parameters.
-    This is a convenience function to create a Raglab2 instance with the string
-    parameters.
-
-    This means it can directly be exposed to a CLI, http server, and GUI.
-    """
-    _construction_kwargs = locals()
-    mk_embeddings = object_resolver(embeddings_module_dot_path)
-    # TODO: Add if dataset is None, list dataset names
-
-    load_dotenv()
-    chroma_key = os.getenv('CHROMA_KEY')
-    client = chromadb.HttpClient(host='149.202.47.109', port="45000", settings=Settings(chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider", chroma_client_auth_credentials=chroma_key))
-    embedding = GPT4AllEmbeddings(client=client)
-    db = Chroma(collection_name=dataset_name, client=client, embedding_function=embedding)
-    raglab = Raglab2(db, embedding)
-
-    raglab._construction_kwargs = _construction_kwargs
-    return raglab
 

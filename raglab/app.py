@@ -1,112 +1,190 @@
-from flask import Flask, Response, request, redirect, session, url_for, render_template
-from raglab.retrieval.chroma_client import ChromaClient
-from raglab2 import *
+import os
+import re
+from fastapi import Depends, FastAPI, Response
+from fastapi.security import APIKeyHeader
+from pydantic import BaseModel
+from dotenv import load_dotenv
+import uvicorn
 
-app = Flask(__name__)
+from raglab2 import RaglabSessionBuilder, RaglabSession
+
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Déclaration de la base pour la définition des modèles SQLAlchemy
+Base = declarative_base()
+
+class User(Base) :
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, index=True)
+    token = Column(String, index=True)
+
+class App(Base) :
+    __tablename__ = "app"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+
+class AppPermission(Base) :
+    __tablename__ = "app_permission"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(Integer)
+    app_id = Column(Integer)
+
+class PromptTemplate(Base) :
+    __tablename__ = "prompt_template"
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String)
+    template = Column(String)
+    rjsf_ui = Column(String)
+
+running_sessions = dict[str, RaglabSession]
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 load_dotenv()
-
+app = FastAPI()
 app.secret_key =  os.getenv("RAGLAB_API_KEY")
 
-USER = "user"
-PASSWORD = "mdp"
+auth_layer = APIKeyHeader(name="API_TOKEN")
 
-### AUTH
+@app.get("/app_list")
+def app_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :  
+    result = db.query(User, AppPermission, App).filter(User.token == token).join(AppPermission, User.id == AppPermission.user_id).join(App, App.id == AppPermission.app_id).all()
+    app_names = [r[2].name for r in result]
+    return {
+        "names" : app_names
+    }
 
-@app.route('/')
-def home():
-    return render_template('login.html')
+@app.get("/prompt")
+def get_template_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :
 
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form['username']
-    password = request.form['password']
-    
-    if username == USER and password == PASSWORD:
-        # TODO SECURITY THINGS 
-        return redirect(url_for(chat))
+    result = db.query(PromptTemplate).all()
 
-    else:
-        return render_template('login.html', error="Invalid credentials")
+    lst = []
 
-@app.route('/gate')
-def gate():
-    return render_template('gate.html')
+    for r in result :
+        lst.append({
+            "id" : r.id,
+            "name" : r.name,
+            "content" : r.template
+        })
 
-### RAGLAB
+    return lst
 
-@app.route('/raglab')
-def index():
-    actions = {
-            "/raglab/query" : "Query dataset",
-            "/raglab/search" : "To be continued...",
-        }
+@app.get("/prompt/editor")
+def get_editor(name:str, db:Session=Depends(get_db)) :
+    result = db.query(PromptTemplate).filter(PromptTemplate.name == name).first()
 
-    return render_template('raglab_home.html', actions=actions)
+    if result is None :
+        return Response(status_code=404)
 
-lab = raglab2("default")
+    return {
+        "template" : result.template,
+        "rjsf_ui" : result.rjsf_ui
+    }
 
-@app.route("/raglab/chat", methods=["GET", "POST"])
-def chat() :
-    if(request.method == "GET") :
-        return render_template("chat.html")
-    
-    elif request.method == "POST" : 
-        message = request.json["message"]
-        response = lab.ask(message)
-        return Response(status=200, response=response)
-    
-    else :
-        return Response(status=666)
-    
-@app.route("/raglab/chat/dataset", methods=["POST"])
-def chat_change_dataset(name) :
-    lab = raglab2(name)
-    message = request.json["message"]
-    response = lab.ask(message)
-    return Response(status=200, response=response)
+class SavePromptTemplateRequest(BaseModel) :
+    id: int
+    name: str
+    template: str
 
-@app.route("/raglab/datasets", methods=["GET"])
-def get_datasets() :
-    client = ChromaClient()
+def get_rjsf_from_template(template:str) :
+    return print("TODO: Implement") #TODO : Implement
 
-    datasets = []
-    for d in client.get_collections() :
-        datasets.append(d.name)
+@app.post("/prompt/editor")
+def save_prompt(request:SavePromptTemplateRequest, db:Session=Depends(get_db)) :    
+    prompt_template = db.query(PromptTemplate).filter(PromptTemplate.id == request.id).first()
 
-    response = { "datasets" : datasets }
-    return Response(status=200, response=response)
+    if prompt_template is None :
+        prompt_template = PromptTemplate()
 
-@app.route("/raglab/datasets", methods=["POST"])
-def get_datasets() :
-    client = ChromaClient()
+    prompt_template.name = request.name
+    prompt_template.template = request.template
+    prompt_template.rjsf_ui = get_rjsf_from_template(request.template)
+    db.add(prompt_template)
+    db.commit()
+    return Response(status_code=200)
 
-    datasets = []
-    for d in client.get_collections() :
-        datasets.append(d.name)
 
-    response = { "datasets" : datasets }
-    return Response(status=200, response=response)
+from chromadb import Client, Settings
 
-@app.route('/raglab/query')
-def get_query():
-    service = None
-    result = service.datasets()
+from langchain_community.llms.openai import OpenAIChat
+from langchain_community.llms.gpt4all import GPT4All
+from langchain_community.embeddings.gpt4all import GPT4AllEmbeddings
+from langchain_community.vectorstores.chroma import Chroma
+from langchain.prompts import ChatPromptTemplate
 
-    return render_template('raglab_query.html', elements=result.results)
+class AskPromptRequest(BaseModel) :
+    template:str
+    parameters:list[str]
 
-@app.route('/raglab/query', methods=['POST'])
-def post_query():
-    query = request.form['query']
-    name = request.form['element']
+def parse_parameters(template:str) -> list[str] :
+    pattern = r'\{([^}]*)\}'
+    return re.findall(pattern, template)
 
-    service = None
-    query_result = service.query(name, query)
+@app.post("/prompt/editor/ask")
+def ask_prompt(request:AskPromptRequest, token:str=Depends(auth_layer)) :
+    model = OpenAIChat(model_name="gpt-3.5-turbo")
 
-    return render_template("raglab_query_result.html", result=query_result.results)
+    parameters = parse_parameters(request.template)
+    i = 0
+    for p in parameters :        
+        request.template = request.template.replace("{"+p+"}", request.parameters[i])
+        i += 1
 
-@app.route('/raglab/search')
-def search():
-    return f'<h1>In progress...</h1>'
+    return model.ask(request.template)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.get("/app/{name}/")
+def run_app(name:str, token:str=Depends(auth_layer), db:Session = Depends(get_db)) :
+    result = db.query(App).filter(App.name == name).first()
+
+    #### TODO: Build from App ####
+
+    client = Client(host='149.202.47.109', port="45000", settings=Settings(chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider", chroma_client_auth_credentials=os.getenv("CHROMA_KEY")))
+    embedding = GPT4AllEmbeddings(client=client)
+    db = Chroma(collection_name="name", client=client, embedding_function=embedding)
+    llm = GPT4All("all-MiniLM-L6-v2-f16.gguf")
+    prompt_template = """Answer the question based only on the following context:
+    {context}
+
+    Question: {question}
+    """
+
+    prompt = ChatPromptTemplate.from_template(prompt_template)
+
+    ######## END TODO ########
+
+    session = RaglabSessionBuilder.build(
+        vectorestore=db,
+        embedding=embedding,
+        prompt=prompt,
+        model=llm
+    )
+
+    running_sessions[name] = session
+
+    return 200
+
+@app.post("/app/{name}")
+def ask_app(name:str, query:str) :
+    if name in running_sessions :
+        return running_sessions[name].ask(query)
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
