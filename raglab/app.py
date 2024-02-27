@@ -1,4 +1,5 @@
 import os
+import re
 from fastapi import Depends, FastAPI, Response
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
@@ -80,7 +81,8 @@ def get_template_list(token:str=Depends(auth_layer), db:Session = Depends(get_db
     for r in result :
         lst.append({
             "id" : r.id,
-            "name" : r.name
+            "name" : r.name,
+            "content" : r.template
         })
 
     return lst
@@ -120,8 +122,6 @@ def save_prompt(request:SavePromptTemplateRequest, db:Session=Depends(get_db)) :
     return Response(status_code=200)
 
 
-
-
 from chromadb import Client, Settings
 
 from langchain_community.llms.openai import OpenAIChat
@@ -129,6 +129,26 @@ from langchain_community.llms.gpt4all import GPT4All
 from langchain_community.embeddings.gpt4all import GPT4AllEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
 from langchain.prompts import ChatPromptTemplate
+
+class AskPromptRequest(BaseModel) :
+    template:str
+    parameters:list[str]
+
+def parse_parameters(template:str) -> list[str] :
+    pattern = r'\{([^}]*)\}'
+    return re.findall(pattern, template)
+
+@app.post("/prompt/editor/ask")
+def ask_prompt(request:AskPromptRequest, token:str=Depends(auth_layer)) :
+    model = OpenAIChat(model_name="gpt-3.5-turbo")
+
+    parameters = parse_parameters(request.template)
+    i = 0
+    for p in parameters :        
+        request.template = request.template.replace("{"+p+"}", request.parameters[i])
+        i += 1
+
+    return model.ask(request.template)
 
 @app.get("/app/{name}/")
 def run_app(name:str, token:str=Depends(auth_layer), db:Session = Depends(get_db)) :

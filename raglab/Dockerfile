@@ -7,6 +7,6 @@ COPY . /app
 COPY .env /app
 COPY test.db /app
 
-RUN pip install fastapi gpt4all langchain chromadb lkj config2py dill dol
+RUN pip install fastapi gpt4all openai langchain chromadb lkj config2py dill dol
 
 CMD ["python", "app.py"]
