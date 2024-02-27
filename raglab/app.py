@@ -105,7 +105,14 @@ class SavePromptTemplateRequest(BaseModel) :
     template: str
 
 def get_rjsf_from_template(template:str) :
-    return print("TODO: Implement") #TODO : Implement
+    parameters = parse_parameters(template)
+    schema = """
+{
+    'title': 'Prompt arguments', 
+    'type': 'object', 
+    'properties':
+""" + ",".join("{'type': 'string', 'title': '{p}'}" for p in parameters) + "} }"
+    return schema
 
 @app.post("/prompt/editor")
 def save_prompt(request:SavePromptTemplateRequest, db:Session=Depends(get_db)) :    
