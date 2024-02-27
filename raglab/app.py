@@ -95,14 +95,18 @@ def get_template_list(token:str=Depends(auth_layer), db:Session = Depends(get_db
     return lst
 
 @app.get("/prompt/editor")
-def get_editor(name:str, db:Session=Depends(get_db)) :
-    result = db.query(PromptTemplate).filter(PromptTemplate.name == name).first()
+def get_editor(id:str, db:Session=Depends(get_db)) :
+    result = db.query(PromptTemplate).filter(PromptTemplate.id == id).first()
 
     if result is None :
         return Response(status_code=404)
 
     return {
-        "template" : result.template,
+        "prompt" : {
+            "id": result.id,
+            "name" : result.name,
+            "template": result.template
+        },
         "rjsf_ui" : result.rjsf_ui
     }
 
