@@ -13,6 +13,7 @@ from dol import (
     add_ipython_key_completions,
 )
 from oa import prompt_function
+from ju import func_to_form_spec
 
 
 def mk_prompt_template_store(
@@ -59,17 +60,29 @@ class PromptDDE(StoreAccess):
         self.store = store
         self.chat = chat or _default_chat()
 
-    def prompt_func(self, prompt: str):
-        return prompt_function(prompt, prompt_func=self.chat)
+    def prompt_func(self, prompt_template: str, **kwargs):
+        return prompt_function(prompt_template, prompt_func=self.chat, **kwargs)
 
-    def execute_prompt(self, prompt_template: str, params: dict):
-        func = self.prompt_func(prompt_template)
+    def execute_prompt(self, prompt_template: str, params: dict, **prompt_func_kwargs):
+        func = self.prompt_func(prompt_template, **prompt_func_kwargs)
         return func(**params)
 
-    def execute_prompt_from_key(self, key: str, params: dict):
+    def execute_prompt_from_key(self, key: str, params: dict, **prompt_func_kwargs):
         prompt_template = self.read(key)
-        func = self.prompt_func(prompt_template)
+        func = self.prompt_func(prompt_template, **prompt_func_kwargs)
         return func(**params)
+
+    def rjsf_json_of_prompt_template(self, prompt_template: str, **prompt_func_kwargs):
+        return func_to_form_spec(
+            self.prompt_func(prompt_template, **prompt_func_kwargs)
+        )
+
+    def rjsf_json_of_key(self, key: str, **prompt_func_kwargs):
+        prompt_template = self.read(key)
+        return func_to_form_spec(
+            self.prompt_func(prompt_template, **prompt_func_kwargs)
+        )
+
 
 
 prompt_template_dde = PromptDDE(mk_prompt_template_store())
@@ -86,6 +99,8 @@ handlers = [
             'delete',
             'execute_prompt',
             'execute_prompt_from_key',
+            'rjsf_json_of_prompt_template',
+            'rjsf_json_of_key'
         ],
     }
 ]
