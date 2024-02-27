@@ -1,6 +1,7 @@
 import os
 import re
 from fastapi import Depends, FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -60,6 +61,12 @@ def get_db():
 load_dotenv()
 app = FastAPI()
 app.secret_key =  os.getenv("RAGLAB_API_KEY")
+origins = ["*"]
+app.add_middleware(CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
 
 auth_layer = APIKeyHeader(name="API_TOKEN")
 
