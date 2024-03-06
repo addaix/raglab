@@ -7,10 +7,6 @@ COPY . /app
 COPY .env /app
 COPY test.db /app
 
-RUN pip install fastapi gpt4all openai langchain chromadb lkj config2py dill dol tiktoken oa
-
-RUN pip install --upgrade openai
-
-RUN openai migrate
+RUN pip install fastapi gpt4all openai langchain chromadb lkj config2py dill dol tiktoken oa ju
 
 CMD ["python", "app.py"]
