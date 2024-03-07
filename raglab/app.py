@@ -12,7 +12,7 @@ from raglab2 import Raglab2, RaglabSessionBuilder, RaglabSession
 from sqlalchemy import create_engine, Table, MetaData, delete, select
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-from sqldol.base import SqlBaseKvStore
+from sqldol.stores import SqlDictsReader
 
 from typing import Mapping, Sized, Iterable
 
@@ -46,7 +46,7 @@ app.add_middleware(CORSMiddleware,
 auth_layer = APIKeyHeader(name="API_TOKEN")
 
 def get_user_id_by_token(token) :
-    user = SqlBaseKvStore(engine=engine, table_name="users", key_columns="token", value_columns=["id"])
+    user = SqlDictsReader(engine=engine, table_name="users", key_columns="token", value_columns=["id"])
     user_id = user[token]
     return user_id
 
@@ -54,7 +54,7 @@ def get_user_id_by_token(token) :
 def app_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :  
     user_id = get_user_id_by_token(token)
     
-    permissions = SqlBaseKvStore(
+    permissions = SqlDictsReader(
         engine=engine, 
         table_name="app_permission", 
         key_columns="id", 
@@ -66,7 +66,7 @@ def app_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :
         if permissions[id]["user_id"] == user_id:
             permissions_id.append(permissions[id]["app_id"])
 
-    apps = SqlBaseKvStore(engine=engine, table_name="app", key_columns="id", value_columns=["name"])
+    apps = SqlDictsReader(engine=engine, table_name="app", key_columns="id", value_columns=["name"])
     app_names = [app[id]["name"] for id in apps]
     return {
         "names" : app_names
@@ -76,7 +76,7 @@ def app_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :
 def get_template_list(token:str=Depends(auth_layer), db:Session = Depends(get_db)) :
     user_id = get_user_id_by_token(token)
     
-    store = SqlBaseKvStore(
+    store = SqlDictsReader(
         engine=engine, 
         table_name="prompt_template", 
         key_columns="id", 
@@ -92,7 +92,7 @@ def get_template_list(token:str=Depends(auth_layer), db:Session = Depends(get_db
 
 @app.get("/prompt/editor")
 def get_editor(name:str, token:str=Depends(auth_layer), db:Session=Depends(get_db)) :
-    store = SqlBaseKvStore(
+    store = SqlDictsReader(
         engine=engine, 
         table_name="prompt_template", 
         key_columns="name", 
