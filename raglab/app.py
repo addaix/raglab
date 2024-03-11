@@ -181,18 +181,23 @@ def save_prompt(request: SavePromptTemplateRequest, user_id=Depends(get_auth_id_
 
     store[request.name] = prompt_template
 
-    return {
-        "prompt": {
-            "name": prompt_template["name"],
-            "template": prompt_template["template"],
-        },
-        "rjsf_ui": {
-            "title": "Prompt arguments",
-            "type": "object",
-            "required": list(dico.keys()),
-            "properties": dico,
-        },
-    }
+    return Response(
+        status_code=200,
+        content=json.dumps(
+            {
+                "prompt": {
+                    "name": prompt_template["name"],
+                    "template": prompt_template["template"],
+                },
+                "rjsf_ui": {
+                    "title": "Prompt arguments",
+                    "type": "object",
+                    "required": list(dico.keys()),
+                    "properties": dico,
+                },
+            }
+        ),
+    )
 
 
 @app.delete("/prompt/editor")
