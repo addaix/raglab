@@ -63,15 +63,20 @@ def get_auth_id_layer(token: str = Depends(auth_layer)):
     user = SqlDictReader(
         engine=engine, table_name="users", key_columns="token", value_columns=["id"]
     )
-    user_id = user[token]["id"]
-    cache_token_user_id[token] = user_id
+    if token in user:
+        user_id = user[token]["id"]
+        cache_token_user_id[token] = user_id
+        return int(user_id)
 
-    return int(user_id)
+    raise HTTPException(
+        status_code=401,
+        detail="Token not found",
+    )
 
 
 @app.get("/app_list")
-def app_list(user_id: str = Depends(get_auth_id_layer)):
-
+def app_list(user_id=Depends(get_auth_id_layer)):
+    print(f"User {user_id} wants to select an app")
     permissions = SqlDictReader(
         engine=engine,
         table_name="app_permission",
@@ -85,11 +90,12 @@ def app_list(user_id: str = Depends(get_auth_id_layer)):
         if permissions[id]["user_id"] == user_id:
             permissions_id.append(permissions[id]["app_id"])
 
+    print(f"User can access {len(permissions_id)} app")
     apps = SqlDictReader(
         engine=engine, table_name="app", key_columns="id", value_columns=["name"]
     )
 
-    app_names = [apps[id]["name"] for id in apps]
+    app_names = [apps[id]["name"] for id in permissions_id]
 
     return {"names": app_names}
 
@@ -128,10 +134,15 @@ def get_editor(name: str):
     except:
         return Response(status_code=404)
 
-    return {
-        "prompt": {"name": result["name"], "template": result["template"]},
-        "rjsf_ui": json.loads(result["rjsf_ui"]),
-    }
+    return Response(
+        status_code=200,
+        content=json.dumps(
+            {
+                "prompt": {"name": result["name"], "template": result["template"]},
+                "rjsf_ui": json.loads(result["rjsf_ui"]),
+            }
+        ),
+    )
 
 
 class SavePromptTemplateRequest(BaseModel):
@@ -170,18 +181,23 @@ def save_prompt(request: SavePromptTemplateRequest, user_id=Depends(get_auth_id_
 
     store[request.name] = prompt_template
 
-    return {
-        "prompt": {
-            "name": prompt_template["name"],
-            "template": prompt_template["template"],
-        },
-        "rjsf_ui": {
-            "title": "Prompt arguments",
-            "type": "object",
-            "required": list(dico.keys()),
-            "properties": dico,
-        },
-    }
+    return Response(
+        status_code=200,
+        content=json.dumps(
+            {
+                "prompt": {
+                    "name": prompt_template["name"],
+                    "template": prompt_template["template"],
+                },
+                "rjsf_ui": {
+                    "title": "Prompt arguments",
+                    "type": "object",
+                    "required": list(dico.keys()),
+                    "properties": dico,
+                },
+            }
+        ),
+    )
 
 
 @app.delete("/prompt/editor")
