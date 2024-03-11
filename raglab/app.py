@@ -134,10 +134,15 @@ def get_editor(name: str):
     except:
         return Response(status_code=404)
 
-    return {
-        "prompt": {"name": result["name"], "template": result["template"]},
-        "rjsf_ui": json.loads(result["rjsf_ui"]),
-    }
+    return Response(
+        status_code=200,
+        content=json.dumps(
+            {
+                "prompt": {"name": result["name"], "template": result["template"]},
+                "rjsf_ui": json.loads(result["rjsf_ui"]),
+            }
+        ),
+    )
 
 
 class SavePromptTemplateRequest(BaseModel):
