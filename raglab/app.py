@@ -247,5 +247,25 @@ def ask_prompt(request: AskPromptRequest):
     return {"answer": prompt_execution_adapter(request.template, request.parameters)}
 
 
+@app.get("/prompt/permissions")
+def get_permissions(user_id = Depends(get_auth_id_layer)) :
+
+    print(f"User {user_id} wants to get permissions")
+
+    store = SqlDictStore(
+        engine=engine,
+        table_name="app_permission",
+        key_columns="id",
+        value_columns=["app_id", "owner_id"],
+    )
+
+    permissions = []
+
+    for id in store :
+        permissions.append(store[id])
+        print(store[id])
+
+    return Response(status_code=200)
+
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True, log_level="trace")
