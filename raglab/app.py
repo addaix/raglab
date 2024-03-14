@@ -259,11 +259,69 @@ def get_permissions(user_id = Depends(get_auth_id_layer)) :
         value_columns=["app_id", "owner_id"],
     )
 
-    permissions = []
+    permissions = []    
 
     for id in store :
         permissions.append(store[id])
-        print(store[id])
+
+    store = SqlDictStore(
+        engine=engine,
+        table_name="user",
+        key_columns="id",
+        value_columns=["name"],
+    )
+
+    users = []    
+
+    for id in store :
+        users.append({"id": store[id], "name": store[id]["name"]})
+
+    store = SqlDictStore(
+        engine=engine,
+        table_name="app",
+        key_columns="id",
+        value_columns=["name"],
+    )
+
+    apps = []    
+
+    for id in store :
+        users.append({"id": store[id], "name": store[id]["name"]})
+
+    print(permissions)
+    print(users)
+    print(apps)
+
+    return Response(status_code=200)
+
+class PermissionRequest :
+    app_id:int
+    user_id:int
+
+@app.post("/prompt/permissions")
+def post_permission(request:PermissionRequest, user_id = Depends(get_auth_id_layer)) :
+    store = SqlDictStore(
+        engine=engine,
+        table_name="app_permission",
+        key_columns="app_id",
+        value_columns=["user_id"],
+    )
+
+    store[request.app_id] = request.user_id
+
+    return Response(status_code=200)
+
+@app.delete("/prompt/permissions")
+def delete_permission(keys:list, user_id = Depends(get_auth_id_layer)) :
+    store = SqlDictStore(
+        engine=engine,
+        table_name="app_permission",
+        key_columns="app_id",
+        value_columns=["user_id"],
+    )
+
+    for key in keys :
+        store.__delitem__(key)
 
     return Response(status_code=200)
 

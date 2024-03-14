@@ -68,7 +68,14 @@ def test_update_template():
 
 def test_get_permissions() :
     permissions = get_permissions(ADMIN_USER)
-
     assert permissions.status_code == 200
 
-    
+    request = PermissionRequest(app_id=2, user_id=ADMIN_USER)
+    response = post_permission(request, ADMIN_USER)
+    assert response.status_code == 200
+
+    permissions = get_permissions(ADMIN_USER)
+    assert permissions.status_code == 200
+
+    response = delete_permission([2], ADMIN_USER)
+    assert response.status_code == 200
