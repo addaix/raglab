@@ -113,3 +113,6 @@ venv.bak/
 
 # PyCharm
 .idea
+raglab/build_and_run
+raglab/run_container
+misc/thomas.ipynb
