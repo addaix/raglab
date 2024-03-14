@@ -75,46 +75,49 @@ class LazyAccessor(Namespace):
 
     >>> def plus_2(x):
     ...     return x + 2
-    >>> def times_2(x):
-    ...     return x * 2
-    >>> f = LazyAccessor(dict(plus_2=plus_2, times_2=times_2), x=10)
+    >>> def times(x, y):
+    ...     return x * y
+    >>> f = LazyAccessor(dict(plus_2=plus_2, times=times), x=10, y=2)
     >>> list(f)
-    ['plus_2', 'times_2']
+    ['plus_2', 'times']
     >>> f.plus_2
     12
-    >>> f.times_2
+    >>> f.times
     20
 
     If you need to make a LazyAccessor factory with a fixed set of object factories,
     you can use `functools.partial` to do so:
 
     >>> from functools import partial
-    >>> object_factories = dict(plus_2=plus_2, times_2=times_2)
+    >>> object_factories = dict(plus_2=plus_2, times=times)
     >>> mk_accessor = partial(LazyAccessor, object_factories)
-    >>> g = mk_accessor(x=3)
-    >>> g.plus_2, g.times_2
-    (5, 6)
-    >>> h = mk_accessor(x=20)
-    >>> h.plus_2, h.times_2
-    (22, 40)
+    >>> g = mk_accessor(x=10, y=2)
+    >>> g.plus_2, g.times
+    (12, 20)
+    >>> h = mk_accessor(x=3, y=10)
+    >>> h.plus_2, h.times
+    (5, 30)
 
     """
 
     def __init__(self, factories: Mapping[str, Callable], **named_parameters):
         self._factories = factories
         self._named_parameters = named_parameters
-        self._cached_stores = {}
-
-    def __iter__(self):
-        return iter(self._factories)
+        self._cached_objs = {}
 
     def __getattr__(self, name):
         # Note: Could use a specialized "method" lru_cache instead.
         # See for example: https://stackoverflow.com/questions/33672412/python-functools-lru-cache-with-instance-methods-release-object/68052994#68052994
-        if name not in self._cached_stores:
-            store = call_forgivingly(self._factories[name], **self._named_parameters)
-            self._cached_stores[name] = store
-        return self._cached_stores[name]
+        if name not in self._cached_objs:
+            obj = call_forgivingly(self._factories[name], **self._named_parameters)
+            self._cached_objs[name] = obj
+        return self._cached_objs[name]
 
     def __getitem__(self, k):
-        return super().__getitem__(k)
+        return self._factories[k]
+
+    def __iter__(self):
+        return iter(self._factories)
+
+    def __dir__(self):
+        return list(self)
