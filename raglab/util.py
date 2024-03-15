@@ -121,3 +121,36 @@ class LazyAccessor(Namespace):
 
     def __dir__(self):
         return list(self)
+
+
+def clog(condition, *args, log_func=print, **kwargs):
+    """Conditional log
+
+    >>> clog(False, "logging this")
+    >>> clog(True, "logging this")
+    logging this
+
+    One common usage is when there's a verbose flag that allows the user to specify
+    whether they want to log or not. Instead of having to litter your code with
+    `if verbose:` statements you can just do this:
+
+    >>> verbose = True  # say versbose is True
+    >>> _clog = clog(verbose)  # makes a clog with a fixed condition
+    >>> _clog("logging this")
+    logging this
+
+    You can also choose a different log function.
+    Usually you'd want to use a logger object from the logging module,
+    but for this example we'll just use `print` with some modification:
+
+    >>> _clog = clog(verbose, log_func=lambda x: print(f"hello {x}"))
+    >>> _clog("logging this")
+    hello logging this
+
+    """
+    if not args and not kwargs:
+        import functools
+
+        return functools.partial(clog, condition, log_func=log_func)
+    if condition:
+        return log_func(*args, **kwargs)

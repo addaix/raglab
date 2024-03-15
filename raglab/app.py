@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from sqldol.stores import SqlDictReader, SqlDictStore
 import uvicorn
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # pip install python-dotenv
 
 load_dotenv()
 
