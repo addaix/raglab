@@ -1,16 +1,30 @@
 """ This module provides functions to retrieve documents from a corpus based on a query. """
 
-from typing import Mapping, List, Tuple, Callable
+from config2py import config_getter, get_app_data_folder, process_path
+from docx import Document
+from docx2python import docx2python
+from docx2python.iterators import iter_paragraphs
+from dol import wrap_kvs, Pipe
+from functools import partial
 from heapq import nlargest
-from langchain_openai import OpenAIEmbeddings
+from importlib.resources import files
+from io import BytesIO
+from i2 import Namespace
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from sklearn.metrics.pairwise import cosine_similarity
-from config2py import config_getter
+from langchain_openai import OpenAIEmbeddings
+import json
+from meshed import DAG
+import msword
+from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
 import oa
-from functools import partial
+import os
+import pdfplumber
+from pypdf import PdfReader
+from sklearn.metrics.pairwise import cosine_similarity
 import tiktoken
-from meshed import DAG
+from typing import Mapping, List, Tuple, Callable
+
 
 DocKey = str
 
@@ -53,7 +67,7 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
-_generate_split_keys = partial(generate_split_keys, chunk_size=30)
+_generate_split_keys = partial(generate_split_keys, chunk_size=300)
 
 
 # TODO : @cache_result : cache the result of this function
