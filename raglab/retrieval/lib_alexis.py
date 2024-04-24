@@ -108,7 +108,7 @@ def top_k_segments(
     return [key for _, key in top_k]
 
 
-def query(user_query: str, process_function: Callable[str, str] = lambda x: x) -> str:
+def query(user_query: str, process_function: Callable[[str], str] = lambda x: x) -> str:
     return process_function(user_query)
 
 
@@ -127,8 +127,6 @@ def query_answer(
         query=query, documents=aggregated_text
     )
 
-
-from meshed import DAG
 
 funcs = [
     segment_keys,
