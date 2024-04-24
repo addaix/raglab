@@ -3,7 +3,7 @@
 from functools import partial
 from i2 import Sig, Namespace
 from sqldol.base import SqlBaseKvReader
-from sqldol.stores import SqlDictReader
+from sqldol.stores import SqlDictReader, SqlDictStore
 
 from raglab.util import LazyAccessor
 
@@ -46,6 +46,18 @@ store_factories = Namespace(
         table_name="prompt_template",
         key_columns="name",
         value_columns=["owner_id"],
+    ),
+    users=partial(
+        SqlDictStore,
+        table_name="users",
+        key_columns="id",
+        value_columns=["name", "token"],
+    ),
+    auth_token=partial(
+        SqlDictStore,
+        table_name="users",
+        key_columns="token",
+        value_columns=["user_id"],
     ),
 )
 
