@@ -7,6 +7,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from sklearn.metrics.pairwise import cosine_similarity
 from config2py import config_getter
 import numpy as np
+import oa
+from functools import partial
+import tiktoken
 from meshed import DAG
 
 DocKey = str
@@ -105,11 +108,6 @@ def top_k_segments(
     return [key for _, key in top_k]
 
 
-import oa
-from functools import partial
-import tiktoken
-
-
 def query(user_query: str, process_function: Callable[str, str] = lambda x: x) -> str:
     return process_function(user_query)
 
@@ -125,7 +123,7 @@ def query_answer(
     aggregated_text = ""
     for segment_key in top_k_segments:
         aggregated_text += documents[segment_key[0]][segment_key[1] : segment_key[2]]
-    return prompt_function(prompt_template, prompt_func=chat_model)(
+    return oa.prompt_function(prompt_template, prompt_func=chat_model)(
         query=query, documents=aggregated_text
     )
 
