@@ -90,7 +90,9 @@ def doc_embeddings(
     return dict(
         zip(
             segment_keys,
-            np.array(embedding_function([documents[doc_key] for doc_key in documents])),
+            np.array(
+                embedding_function([documents[s[0]][s[1] : s[2]] for s in segment_keys])
+            ),
         )
     )
 
@@ -221,7 +223,7 @@ def extension_based_decoding(k, v):
     return decoder(v)
 
 
-def extension_base_encoding(k, v):
+def extension_based_encoding(k, v):
     ext = "." + k.split(".")[-1]
     encoder = extension_to_encoder.get(ext, None)
     if encoder is None:
@@ -247,5 +249,5 @@ def get_config(key, sources) -> str:
             continue
 
     value = input(f"Please enter the value for {key} and press enter")
-    source[key] = extension_base_encoding(key, value)
+    source[key] = extension_based_encoding(key, value)
     return value
