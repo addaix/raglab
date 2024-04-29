@@ -1,5 +1,6 @@
 """ This module provides functions to retrieve documents from a corpus based on a query. """
 
+<<<<<<< HEAD
 from typing import Mapping, List, Tuple, Callable, Optional, Any
 from docx import Document
 from docx2python import docx2python
@@ -9,16 +10,40 @@ from docx2python.iterators import iter_paragraphs
 from heapq import nlargest
 import pdfplumber
 from langchain_openai import OpenAIEmbeddings
+=======
+from config2py import config_getter, get_app_data_folder, process_path
+from docx import Document
+from docx2python import docx2python
+from docx2python.iterators import iter_paragraphs
+from dol import wrap_kvs, Pipe
+from functools import partial
+from heapq import nlargest
+from importlib.resources import files
+from io import BytesIO
+from i2 import Namespace
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from sklearn.metrics.pairwise import cosine_similarity
-from config2py import config_getter
+from langchain_openai import OpenAIEmbeddings
+import json
+from meshed import DAG
+import msword
+from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
 import oa
+<<<<<<< HEAD
 from dol import wrap_kvs, Pipe
 from functools import partial
 import tiktoken
 from meshed import DAG
 from msword import bytes_to_doc, get_text_from_docx  # pip install msword
+=======
+import os
+import pdfplumber
+from pypdf import PdfReader
+from sklearn.metrics.pairwise import cosine_similarity
+import tiktoken
+from typing import Mapping, List, Tuple, Callable
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 
 
 DocKey = str
@@ -69,7 +94,11 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
+<<<<<<< HEAD
 _generate_split_keys = partial(generate_split_keys, chunk_size=200)
+=======
+_generate_split_keys = partial(generate_split_keys, chunk_size=300)
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 
 
 # TODO : @cache_result : cache the result of this function
@@ -230,7 +259,7 @@ def extension_based_decoding(k, v):
     return decoder(v)
 
 
-def extension_base_encoding(k, v):
+def extension_based_encoding(k, v):
     ext = "." + k.split(".")[-1]
     encoder = extension_to_encoder.get(ext, None)
     if encoder is None:
@@ -256,5 +285,5 @@ def get_config(key, sources) -> str:
             continue
 
     value = input(f"Please enter the value for {key} and press enter")
-    source[key] = extension_base_encoding(key, value)
+    source[key] = extension_based_encoding(key, value)
     return value
