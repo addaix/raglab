@@ -1,5 +1,16 @@
 """ This module provides functions to retrieve documents from a corpus based on a query. """
 
+<<<<<<< HEAD
+from typing import Mapping, List, Tuple, Callable, Optional, Any
+from docx import Document
+from docx2python import docx2python
+import json
+from io import BytesIO
+from docx2python.iterators import iter_paragraphs
+from heapq import nlargest
+import pdfplumber
+from langchain_openai import OpenAIEmbeddings
+=======
 from config2py import config_getter, get_app_data_folder, process_path
 from docx import Document
 from docx2python import docx2python
@@ -10,6 +21,7 @@ from heapq import nlargest
 from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 import json
@@ -18,12 +30,20 @@ import msword
 from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
 import oa
+<<<<<<< HEAD
+from dol import wrap_kvs, Pipe
+from functools import partial
+import tiktoken
+from meshed import DAG
+from msword import bytes_to_doc, get_text_from_docx  # pip install msword
+=======
 import os
 import pdfplumber
 from pypdf import PdfReader
 from sklearn.metrics.pairwise import cosine_similarity
 import tiktoken
 from typing import Mapping, List, Tuple, Callable
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 
 
 DocKey = str
@@ -39,15 +59,22 @@ docs = {
 
 
 def generate_split_keys(
-    docs: Mapping[DocKey, str], chunk_size
+    docs: Mapping[DocKey, str],
+    chunk_size: int,
+    chunk_overlap: int,
+    separators: Optional[List[str]] = None,
+    keep_separator: bool = True,
+    is_separator_regex: bool = False,
+    **kwargs: Any,
 ) -> List[Tuple[str, int, int]]:
     """Generate the split keys for the documents: Split key is a tuple of (document_name, start_index, end_index)"""
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
-        chunk_overlap=0,
+        chunk_overlap=chunk_overlap,
         length_function=len,
         add_start_index=True,  # enforce the start index
-        is_separator_regex=False,
+        is_separator_regex=is_separator_regex,
+        keep_separator=keep_separator,
     )
     documents = text_splitter.create_documents(
         list(docs.values()), metadatas=list({"document_name": k} for k in docs.keys())
@@ -67,7 +94,11 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
+<<<<<<< HEAD
+_generate_split_keys = partial(generate_split_keys, chunk_size=200)
+=======
 _generate_split_keys = partial(generate_split_keys, chunk_size=300)
+>>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 
 
 # TODO : @cache_result : cache the result of this function
@@ -177,6 +208,11 @@ def num_tokens(string: str, encoding_name: str = "cl100k_base") -> int:
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
+
+
+def tokens(string: str, encoding_name: str = "cl100k_base") -> List[str]:
+    encoding = tiktoken.get_encoding(encoding_name)
+    return encoding.encode(string)
 
 
 def read_pdf_text(pdf_reader):
