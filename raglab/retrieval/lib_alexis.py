@@ -1,9 +1,6 @@
 """ This module provides functions to retrieve documents from a corpus based on a query. """
 
 from config2py import config_getter, get_app_data_folder, process_path
-from docx import Document
-from docx2python import docx2python
-from docx2python.iterators import iter_paragraphs
 from dol import wrap_kvs, Pipe
 from functools import partial
 from heapq import nlargest
@@ -11,16 +8,10 @@ from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-import json
-from meshed import DAG
-import msword
-from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
 import oa
 import os
 import pdfplumber
-from pypdf import PdfReader
 from sklearn.metrics.pairwise import cosine_similarity
 import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
