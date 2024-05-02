@@ -4,7 +4,7 @@ from pydub import AudioSegment, silence
 import pytesseract
 import os
 
-def extract_text_from_pdf(pdf_path: str, lang='fr') -> str:
+def extract_text_from_pdf(pdf_path: str, lang='fra') -> str:
     pages = convert_from_path(pdf_path, dpi=300)
     full_text = ""
     for page_number, image in enumerate(pages):

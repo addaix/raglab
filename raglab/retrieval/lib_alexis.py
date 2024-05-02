@@ -1,16 +1,5 @@
 """ This module provides functions to retrieve documents from a corpus based on a query. """
 
-<<<<<<< HEAD
-from typing import Mapping, List, Tuple, Callable, Optional, Any
-from docx import Document
-from docx2python import docx2python
-import json
-from io import BytesIO
-from docx2python.iterators import iter_paragraphs
-from heapq import nlargest
-import pdfplumber
-from langchain_openai import OpenAIEmbeddings
-=======
 from config2py import config_getter, get_app_data_folder, process_path
 from docx import Document
 from docx2python import docx2python
@@ -21,7 +10,6 @@ from heapq import nlargest
 from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
->>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 import json
@@ -30,20 +18,12 @@ import msword
 from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
 import oa
-<<<<<<< HEAD
-from dol import wrap_kvs, Pipe
-from functools import partial
-import tiktoken
-from meshed import DAG
-from msword import bytes_to_doc, get_text_from_docx  # pip install msword
-=======
 import os
 import pdfplumber
 from pypdf import PdfReader
 from sklearn.metrics.pairwise import cosine_similarity
 import tiktoken
-from typing import Mapping, List, Tuple, Callable
->>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
+from typing import Mapping, List, Optional, Any, Tuple, Callable
 
 
 DocKey = str
@@ -93,13 +73,7 @@ def generate_split_keys(
 def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
-
-<<<<<<< HEAD
-_generate_split_keys = partial(generate_split_keys, chunk_size=200)
-=======
 _generate_split_keys = partial(generate_split_keys, chunk_size=300)
->>>>>>> d985d85d6ab4ee79aa4ffdba19b5d651062e312f
-
 
 # TODO : @cache_result : cache the result of this function
 def segment_keys(
