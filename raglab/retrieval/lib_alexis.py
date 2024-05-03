@@ -10,9 +10,15 @@ from i2 import Namespace
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import numpy as np
 import oa
-import os
+from meshed import DAG
+from msword import bytes_to_doc, get_text_from_docx
+from docx import Document
+from docx2python import docx2python
+from docx2python.iterators import iter_paragraphs
+import json
 import pdfplumber
 from sklearn.metrics.pairwise import cosine_similarity
+from langchain_openai import OpenAIEmbeddings
 import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
 
@@ -64,7 +70,9 @@ def generate_split_keys(
 def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
+
 _generate_split_keys = partial(generate_split_keys, chunk_size=300)
+
 
 # TODO : @cache_result : cache the result of this function
 def segment_keys(
