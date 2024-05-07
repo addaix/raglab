@@ -71,7 +71,7 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
-_generate_split_keys = partial(generate_split_keys, chunk_size=300)
+_generate_split_keys = partial(generate_split_keys, chunk_size=3000, chunk_overlap=100)
 
 
 # TODO : @cache_result : cache the result of this function

@@ -1,0 +1,95 @@
+Les deux documents semblent traiter de la collaboration entre deux parties, mais avec des aspects différents. 
+
+Le document 1 évoque les conditions générales de partenariat entre deux parties, Agilita'on et un Partenaire. Il précise les définitions de certains termes, les missions du Partenaire, les obligations générales de conseil, et d'autres aspects liés à la collaboration. Il mentionne également la possibilité de sous-traiter certaines missions, sous réserve du respect des règles du Contrat.
+
+Le document 2, quant à lui, est un contrat de prestation de services entre la Compagnie Financière de Participation (CFP) et Addixware. Il précise les obligations des parties, les prestations à fournir, les aspects financiers, les définitions, et la durée du contrat. Il inclut également des dispositions spécifiques concernant le traitement des données personnelles, et des clauses diverses notamment sur la nullité des clauses et les modalités de modification du contrat.
+
+En comparant les deux documents, on peut noter que le document 1 est plus général et concerne des conditions de partenariat en général, tandis que le document 2 est un contrat spécifique entre deux sociétés pour des prestations de services informatiques. Les deux documents évoquent des engagements, des obligations, et des modalités de collaboration entre les parties, mais avec des spécificités propres à chaque cas.
+
+Le document 1 présente un contrat entre deux parties, le Partenaire et Agilita:on. Il traite des obligations générales de conseil, de respect de la réglementation en vigueur, de compréhension des objectifs du contrat, de collaboration des parties, de l'obligation de moyen, de la propriété intellectuelle, de la facturation, etc. Il met également en avant l'intuitu personae du contrat, c'est-à-dire que le contrat est conclu en considération des qualités du Partenaire.
+
+Le document 2 présente un contrat entre un CLIENT et un PRESTATAIRE pour des prestations d'assistance technique en informatique. Il traite des obligations des parties, des prestations à fournir, du lieu d'exécution des prestations, de la propriété intellectuelle, etc. Il définit également les interlocuteurs désignés des deux parties pour le suivi de la prestation, ainsi que les conditions financières telles que le tarif journalier moyen proposé.
+
+En comparant les deux documents, on peut noter que le document 1 est plus général, traitant de divers aspects du contrat et mettant en avant l'importance de la collaboration des parties, tandis que le document 2 est plus spécifique aux prestations informatiques à fournir et aux modalités financières. Les deux contrats ont des éléments communs tels que la propriété intellectuelle, la collaboration des parties et les obligations respectives des parties.
+
+Les deux documents concernent la cession des droits de propriété intellectuelle dans le cadre de prestations réalisées pour une entreprise. Dans le document 1, il est stipulé que le Partenaire cède ses droits patrimoniaux sur les travaux réalisés au profit de l'entreprise Agilita:on. Les droits d'exploitation, reproduction, édition, commercialisation, etc. sont également transférés à l'entreprise. En cas de non-paiement, des pénalités de retard peuvent être facturées. 
+
+Dans le document 2, le Prestataire cède à titre exclusif au CLIENT l'ensemble des droits de propriété intellectuelle sur les travaux réalisés pour lui. Les droits de reproduction, utilisation, représentation, édition, adaptation, etc. sont inclus dans la cession. Le Prestataire se réserve cependant le droit d'utiliser les enseignements et le savoir-faire acquis pour son propre compte ou celui de tiers. 
+
+Les deux documents mentionnent également les conditions financières, les modalités de facturation et de paiement, ainsi que le lieu d'exécution des prestations. Le document 2 précise également les obligations du Client en termes d'information et de mise à disposition des moyens nécessaires à l'exécution des prestations. 
+
+En termes de similitudes, les deux documents traitent de la cession des droits de propriété intellectuelle dans le cadre de prestations réalisées pour une entreprise. Ils mentionnent également les conditions financières et les modalités de paiement. En termes de différences, le document 1 semble être plus centré sur les obligations du Partenaire et les conditions de paiement en cas de retard, tandis que le document 2 accorde une importance particulière aux droits du Prestataire et à la garantie de jouissance paisible des prestations pour le Client.
+
+Les documents 1 et 2 traitent tous les deux des obligations et des responsabilités des parties concernant le traitement des données personnelles. Le document 1 met en avant les garanties et les obligations du Partenaire envers Agilita'on, tandis que le document 2 établit des conditions spécifiques pour les prestataires agissant au nom du groupe Compagnie Fruitière.
+
+Dans le document 1, le Partenaire doit garantir Agilita'on contre tout recours lié aux droits cédés et doit respecter les législations du travail. Il doit également communiquer des informations précises sur ses produits ou services et sur les prestations qu'il va réaliser. Les contreparties financières et les tarifications sont également détaillées dans ce document. En ce qui concerne les données personnelles et la gestion de la sous-traitance, le Partenaire doit fournir des déclarations sociales et respecter les obligations en matière de protection des données.
+
+Dans le document 2, le Prestataire est tenu de respecter la réglementation en vigueur en matière de traitement des données personnelles. Il s'engage à informer le Client en cas de violation de données et à restituer les données personnelles à la fin du contrat. Le Prestataire doit également obtenir l'autorisation du Client pour tout transfert de données en dehors de l'Union européenne et informer le Client de tout changement de sous-traitant ultérieur.
+
+En résumé, les deux documents mettent en avant l'importance du respect des obligations légales en matière de traitement des données personnelles, mais le document 1 se concentre davantage sur les garanties et les responsabilités du Partenaire envers Agilita'on, tandis que le document 2 établit des conditions spécifiques pour les prestataires agissant au nom du groupe Compagnie Fruitière.
+
+Le document 1 présente une politique de sécurité formalisée et accessible à tous, impliquant l'entreprise Agilita:on et ses partenaires. Il énonce les responsabilités du Partenaire en matière de protection des données personnelles, de conformité aux exigences d'Agilita:on, de respect du secret des données, de sécurisation du traitement des données, et de respect des normes de protection des données.
+
+Le document 2 est un contrat entre le PRESTATAIRE et le CLIENT, décrivant les obligations relatives au traitement des données personnelles dans le cadre des services fournis. Il précise les catégories de données personnelles traitées, les personnes concernées, les opérations réalisées, les finalités du traitement, la durée du traitement, ainsi que les obligations du CLIENT et du PRESTATAIRE en matière de protection des données.
+
+En comparant les deux documents, on peut constater que le document 1 énonce des principes généraux de protection des données personnelles et de sécurité, tandis que le document 2 est plus spécifique en décrivant les détails du traitement des données et les obligations des parties contractantes. Le document 1 semble être une politique de sécurité standard, tandis que le document 2 est un contrat spécifique régissant les relations entre le PRESTATAIRE et le CLIENT en matière de données personnelles.
+
+Le document 1 concerne les engagements et les obligations du Partenaire en termes de protection des données personnelles dans le cadre d'un contrat de sous-traitance, conformément au RGPD. Le Partenaire s'engage à prendre des mesures de sécurité et de confidentialité, à limiter l'accès aux données personnelles, à informer immédiatement en cas de contrôle ou de violation des données, à traiter les données conformément aux instructions et à restituer ou effacer les données à la fin du contrat. Le Document 1 met également en avant la responsabilité du Partenaire en cas de non-respect des obligations légales et des sanctions prévues en cas de violation.
+
+Le document 2, quant à lui, concerne les responsabilités et engagements du Prestataire en matière de protection des données personnelles dans le cadre de la fourniture de services. Le Prestataire s'engage à respecter les obligations du RGPD, à informer le Client en cas de violation des données, à mettre en place des mesures de sécurité, à aider le Client dans l'exercice des droits des personnes concernées, et à coopérer en cas d'audits. Le document 2 décrit également les catégories de données traitées, les personnes concernées, la nature des opérations réalisées sur les données et les finalités du traitement.
+
+En comparant les deux documents, on peut voir que les engagements et obligations en matière de protection des données personnelles sont similaires dans les deux cas, avec des spécificités liées aux différents rôles de Partenaire et de Prestataire. Les deux documents insistent sur la nécessité de respecter le RGPD, de garantir la sécurité et la confidentialité des données, d'informer en cas de violation et de coopérer avec les autorités compétentes. Les deux documents mettent également en avant la responsabilité des parties en cas de non-respect des obligations légales.
+
+Le document 1 semble se concentrer sur les aspects de confidentialité, de conservation des données personnelles et sur les engagements des parties en ce qui concerne l'utilisation des informations confidentielles. Il traite également de la résiliation du contrat et des conséquences en cas de non-respect des engagements pris.
+
+En revanche, le document 2 est plus axé sur les relations entre le prestataire et le client, en particulier en ce qui concerne le traitement des données personnelles. Il définit les obligations du prestataire en matière de protection des données et de conformité à la réglementation en vigueur. Il décrit également les opérations de traitement des données personnelles effectuées par le prestataire pour le compte du client.
+
+Dans l'ensemble, les deux documents traitent de questions similaires concernant la confidentialité des données et les engagements des parties en ce qui concerne le respect des réglementations en vigueur. Cependant, le document 1 semble se concentrer davantage sur les aspects juridiques et contractuels, tandis que le document 2 met l'accent sur les aspects opérationnels et techniques liés au traitement des données personnelles.
+
+le droit français. Le PRESTATAIRE devra notifier immédiatement le CLIENT de la survenance d'un tel événement et fournir toutes les informations nécessaires.
+
+En cas de force majeure, les obligations des Parties seront suspendues pour la durée de l'événement et aucune des Parties ne pourra être tenue responsable de la non-exécution de ses obligations pendant cette période.
+
+Article 15 : DISPOSITIONS GENERALES
+
+Le Contrat exprime l'intégralité de l'accord entre les Parties et remplace tous accords antérieurs entre elles. Aucune modification du Contrat ne sera valide à moins d'être faite par écrit et signée par les représentants habilités des Parties.
+
+En cas de litige relatif à l'interprétation ou à l'exécution du Contrat, les Parties s'engagent à chercher une solution amiable. À défaut, le litige sera soumis à la juridiction compétente du ressort de la Cour d'Appel de Montpellier.
+
+Fait à Marseille, le jour et l'an mentionnés en tête du Contrat.
+
+Pour le CLIENT Pour le PRESTATAIRE
+M. Patrick VIEIL M. Frédéric FERLITA
+
+ANNEXE 1 - Conditions particulières
+
+Dans le cadre de la Prestation, les interlocuteurs désignés sont M. Patrick VIEIL pour le CLIENT et M. Frédéric FERLITA pour le PRESTATAIRE. Le Tarif journalier moyen proposé est de 390€ HT et la Prestation s'effectue cinq jours par semaine jusqu'à la fin du Contrat.
+
+ANNEXE 2 - Traitement des Données Personnelles
+
+Cette annexe définit les conditions dans lesquelles le PRESTATAIRE traite les Données Personnelles pour le compte du CLIENT, en respectant la réglementation en vigueur. Elle fait partie intégrante du Contrat.
+
+En conclusion, les deux documents abordent des clauses contractuelles relatives à différents aspects de la relation entre le CLIENT et le PRESTATAIRE. Le premier document met l'accent sur des aspects tels que la résiliation, l'assurance, la langue du contrat et la responsabilité, tandis que le deuxième document se concentre sur la confidentialité, les obligations RSE, la résiliation en cas de manquement et la force majeure. Ces documents montrent l'importance de définir clairement les obligations et les responsabilités de chaque partie dans le cadre d'un contrat de prestation de services.
+
+Contrairement au document 1 qui traite des hiérarchies des documents contractuels et de la force majeure, le document 2 se concentre sur les conditions particulières, la sous-traitance, la cession, la résiliation, le droit applicable et la juridiction compétente.
+
+Le document 1 met en avant l'importance des annexes dans l'ordre de leur numérotation, ainsi que la priorité des documents en cas de contradiction. Il définit également la force majeure et les démarches à suivre en cas d'événement de ce type.
+
+En revanche, le document 2 détaille les détails financiers, les prestations à fournir, les relations entre les parties, la sous-traitance, la résiliation, le droit applicable, la juridiction compétente et d'autres clauses spécifiques relatives au contrat.
+
+Finalement, le document 1 présente une approche plus générale des obligations contractuelles, tandis que le document 2 se concentre sur les aspects plus spécifiques et techniques du contrat.
+
+Comparaison entre les deux documents :
+
+1. Les deux documents sont des contrats de prestation de services entre deux parties, avec des annexes spécifiques détaillant les conditions particulières de la prestation.
+
+2. Le document 1 met l'accent sur la relation entre les deux parties, en désignant des interlocuteurs privilégiés et en détaillant les engagements et responsabilités du Partenaire envers Agilitation.
+
+3. Le document 2 inclut des clauses spécifiques concernant le traitement des données personnelles, les sous-traitants et les transferts de données hors de l'Union européenne, montrant une attention particulière à la protection des données.
+
+4. Le document 1 comporte également des dispositions sur la gestion du personnel affecté à l'exécution des Prestations et la responsabilité du Partenaire vis-à-vis de son personnel.
+
+5. Le document 2 inclut des clauses sur la résiliation du contrat, les indemnités en cas d'infraction à certaines clauses, et les formalités à suivre en cas de rupture du contrat.
+
+En conclusion, les deux documents présentent des aspects juridiques et contractuels différents, avec le document 1 se concentrant davantage sur la prestation de services et la gestion du personnel, tandis que le document 2 met l'accent sur la protection des données personnelles et les aspects liés aux sous-traitants.
+
