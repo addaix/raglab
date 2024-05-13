@@ -144,7 +144,8 @@ def query_answer(
     for segment_key in top_k_segments:
         aggregated_text += documents[segment_key[0]][segment_key[1] : segment_key[2]]
     return oa.prompt_function(prompt_template, prompt_func=chat_model)(
-        query=query, documents=aggregated_text
+        query=query,
+        documents=aggregated_text,
     )
 
 
