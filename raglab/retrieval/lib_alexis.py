@@ -71,6 +71,12 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
+def chunker(chunk_size: int, chunk_overlap: int, **kwargs):
+    return partial(
+        generate_split_keys, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
+
+
 _generate_split_keys = partial(generate_split_keys, chunk_size=3000, chunk_overlap=100)
 
 
@@ -153,6 +159,7 @@ funcs = [
     segment_keys,
     doc_embeddings,
     top_k_segments,
+    chunker,
     query_embedding,
     query_answer,
     query,

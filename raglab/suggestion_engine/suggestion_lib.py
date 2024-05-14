@@ -1,15 +1,13 @@
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
+from smart_cv import mall
+import re
+from typing import ItemsView
 from meshed import DAG
+import pandas as pd
+import numpy as np
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
-from mlxtend.frequent_patterns import association_rules
-import numpy as np
-import pandas as pd
-from random import randint
-import re
-from smart_cv import mall
-from typing import List, ItemsView
+from functools import partial
+from typing import List
 
 
 def set_from_text(txt):
@@ -38,10 +36,9 @@ def set_from_text(txt):
     return set_
 
 
-jobs_db = set_from_text(mall.stack_mining["job_titles.txt"])
-stack_db = set_from_text(mall.stack_mining["stacks.txt"])
+# --------------------- Building the DAG ---------------------
 
-full_stack_db = stack_db.union(jobs_db)
+from mlxtend.frequent_patterns import association_rules
 
 
 def transactions(cvs: ItemsView, stacks: set) -> list[set]:
@@ -93,38 +90,7 @@ def associations_table(
     ]
 
 
-def confidence_filter(
-    frequent_itemsets: pd.DataFrame, associations_rule, confidence_threshold
-):
-    """Keep only the suggestions with a confidence above the threshold"""
-    assert isinstance(associations_rule, tuple), "associations_rule must be a tuple"
-    sub_itemset, suggestion = associations_rule
-    c = next(confidence(frequent_itemsets, sub_itemset, suggestion))
-    if c > confidence_threshold:
-        return suggestion
-    return set()
-
-
 from concurrent.futures import ThreadPoolExecutor
-
-
-def confidence_filtered_suggestion(
-    freq_itemsets: pd.DataFrame,
-    associations_rules,
-    confidence_threshold,
-):
-    """Keep only the suggestions with a confidence above the threshold"""
-    associations_rules_list = list(associations_rules)
-    with ThreadPoolExecutor() as executor:
-        res = executor.map(
-            partial(
-                confidence_filter,
-                freq_itemsets,
-                confidence_threshold=confidence_threshold,
-            ),
-            associations_rules_list,
-        )
-    return {item for frozenset_item in res for item in frozenset_item}
 
 
 def suggestions(associations_table, new_itemset, predictive_keywords: set = jobs_db):
@@ -156,7 +122,6 @@ funcs = [
     associations_table,
     suggestions,
     filtered_suggestions,
-    # confidence_filtered_suggestion,
     transactions,
 ]
 dag = DAG(funcs)
