@@ -1,6 +1,4 @@
-from smart_cv import mall
 import re
-from typing import ItemsView
 from meshed import DAG
 import pandas as pd
 import numpy as np
@@ -41,25 +39,6 @@ def set_from_text(txt):
 from mlxtend.frequent_patterns import association_rules
 
 
-def transactions(cvs: ItemsView, stacks: set) -> list[set]:
-    """Find the intersection between the stacks and the cvs.
-    Args:
-        cvs: Iterable of cvs names
-        stacks: set of stack keywords
-    Returns:
-        list of sets
-    """
-
-    intersections = []
-    for cv_name, cv_text in cvs:
-        cv_text = mall.cvs[cv_name]
-
-        stack_cv = set_from_text(cv_text)
-        intersection = stack_cv.intersection(stacks)
-        intersections.append(intersection)
-    return intersections
-
-
 def frequent_itemsets(
     transactions,
     min_support=0.1,
@@ -76,7 +55,7 @@ def frequent_itemsets(
 
 def associations_table(
     frequent_itemsets: pd.DataFrame,
-    predictive_keywords: set = jobs_db,
+    predictive_keywords: set,
     metric="confidence",
     min_threshold=0.5,
 ):
@@ -93,36 +72,39 @@ def associations_table(
 from concurrent.futures import ThreadPoolExecutor
 
 
-def suggestions(associations_table, new_itemset, predictive_keywords: set = jobs_db):
-    return associations_table[
-        (
-            associations_table["consequents"].apply(
-                lambda x: x not in new_itemset.union(predictive_keywords)
-            )
-        )
-        & (
-            associations_table["antecedents"].apply(
-                lambda x: x.issubset(new_itemset) and x not in new_itemset
-            )
-        )
+def suggestions(
+    associations_table: pd.DataFrame,
+    new_itemset: set,
+    predictive_keywords: set,
+    min_confidence=0.6,
+    min_lift=1,
+):
+    selected_rows = associations_table[
+        (associations_table["antecedents"].apply(lambda x: x.issubset(new_itemset)))
+        & (associations_table["confidence"] > min_confidence)
+        & (associations_table["lift"] > min_lift)
     ]
+    set_ = set()
+    for consequents in selected_rows["consequents"]:
+        set_.update(consequents)
+    return set_.difference(predictive_keywords.union(new_itemset))
 
 
-def filtered_suggestions(suggestions, min_confidence=0.6, min_lift=1):
-    """returns a set og items that are suggested"""
-    filtered = set()
-    for _, row in suggestions.iterrows():
-        if row["confidence"] > min_confidence and row["lift"] > min_lift:
-            filtered.update(row["consequents"])
-    return filtered
+# def filtered_suggestions(
+#     suggestions: set, new_itemset: set, min_confidence=0.6, min_lift=1
+# ):
+#     """returns a set og items that are suggested"""
+#     filtered = set()
+#     for _, row in suggestions.iterrows():
+#         if row["confidence"] > min_confidence and row["lift"] > min_lift:
+#             filtered.update(row["consequents"])
+#     return filtered.difference(new_itemset)
 
 
 funcs = [
     frequent_itemsets,
     associations_table,
     suggestions,
-    filtered_suggestions,
-    transactions,
 ]
 dag = DAG(funcs)
 dag.dot_digraph()

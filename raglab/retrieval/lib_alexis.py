@@ -20,6 +20,7 @@ import pdfplumber
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain_openai import OpenAIEmbeddings
 import tiktoken
+import pickle
 from typing import Mapping, List, Optional, Any, Tuple, Callable
 
 
@@ -222,6 +223,7 @@ extension_to_decoder = {
     ".json": json.loads,
     ".pdf": Pipe(BytesIO, read_pdf),
     ".docx": Pipe(BytesIO, full_docx_decoder),
+    ".pkl": lambda obj: pickle.loads(obj),
 }
 
 extension_to_encoder = {
