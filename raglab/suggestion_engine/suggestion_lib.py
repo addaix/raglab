@@ -8,7 +8,7 @@ from functools import partial
 from typing import List
 
 
-def set_from_text(txt):
+def set_from_text_maj(txt):
     """Process a text to extract the set of stack keywords"""
     to_remove = [
         "\n",
@@ -27,11 +27,15 @@ def set_from_text(txt):
     ]
     for r in to_remove:
         txt = txt.replace(r, " ")
-    set_ = re.split(r"[,\s\n.]+", txt.lower())  # txt.split(', ')
+    set_ = re.split(r"[,\s\n.]+", txt)  # txt.split(', ')
     set_ = set(set_)
     if "" in set_:
         set_.remove("")
     return set_
+
+
+def set_from_text(txt):
+    return set([i.lower() for i in set_from_text_maj(txt)])
 
 
 # --------------------- Building the DAG ---------------------
