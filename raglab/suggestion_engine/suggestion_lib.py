@@ -13,6 +13,11 @@ def set_from_text_maj(txt):
     to_remove = [
         "\n",
         "\\",
+        "[",
+        "]",
+        '"',
+        "{",
+        "}",
         " ",
         ",",
         ".",
@@ -22,11 +27,17 @@ def set_from_text_maj(txt):
         ";",
         "!",
         "?",
+        " '",
+        "' ",
         " de ",
         " en ",
+        " le ",
+        " la ",
+        " les ",
     ]
     for r in to_remove:
         txt = txt.replace(r, " ")
+    txt = re.sub(r"[^a-zA-Z]'|'[^a-zA-Z]|[^a-zA-Z]\"|\"[^a-zA-Z]", " ", txt)
     set_ = re.split(r"[,\s\n.]+", txt)  # txt.split(', ')
     set_ = set(set_)
     if "" in set_:
@@ -36,6 +47,13 @@ def set_from_text_maj(txt):
 
 def set_from_text(txt):
     return set([i.lower() for i in set_from_text_maj(txt)])
+
+
+def matching_keywords(text, keywords_set):
+    lower_mapping = {i.lower(): i for i in keywords_set}
+    text_set = set_from_text(text)
+    intersection = text_set.intersection(lower_mapping)
+    return set([lower_mapping[i] for i in intersection])
 
 
 # --------------------- Building the DAG ---------------------

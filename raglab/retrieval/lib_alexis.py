@@ -270,3 +270,54 @@ def get_config(key, sources) -> str:
     value = input(f"Please enter the value for {key} and press enter")
     source[key] = extension_based_encoding(key, value)
     return value
+
+
+def simple_language_detection(text: str):
+    """Detects between english and french regading the text language."""
+    french_words = set(
+        [
+            "du",
+            "de",
+            "le",
+            "la",
+            "les",
+            "un",
+            "une",
+            "des",
+            "au",
+            "aux",
+            "en",
+            "et",
+            "ou",
+            "qui",
+            "que",
+        ]
+    )
+    english_words = set(
+        [
+            "the",
+            "a",
+            "an",
+            "of",
+            "to",
+            "and",
+            "or",
+            "who",
+            "which",
+            "that",
+            "this",
+            "these",
+            "those",
+        ]
+    )
+    text = text.lower()
+    french_count = sum([1 for word in text.split() if word in french_words])
+    english_count = sum([1 for word in text.split() if word in english_words])
+    if french_count == english_count:
+        return None
+    if french_count == english_count == 0:
+        return None
+    if french_count > english_count:
+        return "french"
+    else:
+        return "english"
