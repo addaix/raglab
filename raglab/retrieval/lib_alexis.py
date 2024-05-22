@@ -321,3 +321,10 @@ def simple_language_detection(text: str):
         return "french"
     else:
         return "english"
+
+
+def populate_local_user_folders(defaults, local_user_folders):
+    for k in defaults:
+        if k not in local_user_folders:
+            local_user_folders[k] = defaults[k]
+    return defaults
