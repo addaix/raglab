@@ -2,6 +2,7 @@ from PIL import Image
 from pdf2image import convert_from_path
 from pydub import AudioSegment, silence
 import pytesseract
+from transformers import pipeline
 import os
 
 def extract_text_from_pdf(pdf_path: str, lang='fra') -> str:

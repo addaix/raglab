@@ -1,3 +1,5 @@
+from pydub import AudioSegment, silence
+
 '''Audio related utils'''
 
 def remove_silence_from_audio(audio_file_path, silence_threshold=-50.0, chunk_size=10):
