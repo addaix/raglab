@@ -64,7 +64,6 @@ from mlxtend.frequent_patterns import association_rules
 def frequent_itemsets(
     transactions,
     min_support=0.1,
-    # min_length=2,
     **kwargs,
 ):
     te = TransactionEncoder()
@@ -75,7 +74,7 @@ def frequent_itemsets(
     return freq_itemsets  # [freq_itemsets["itemsets"].apply(lambda x: len(x) >= min_length)]
 
 
-def associations_table(
+def associations_table_filtered(
     frequent_itemsets: pd.DataFrame,
     predictive_keywords: set,
     metric="confidence",
@@ -91,13 +90,58 @@ def associations_table(
     ]
 
 
+def associations_table(
+    transactions,
+    previous_transactions=[],
+    min_support=0.1,
+    predictive_keywords: set = set(),
+    metric="confidence",
+    min_threshold=0.5,
+    **kwargs,
+):
+    """return the association table with the metric and the min_threshold as filters."""
+    return associations_table_filtered(
+        frequent_itemsets=frequent_itemsets(
+            transactions + previous_transactions, min_support=min_support, **kwargs
+        ),
+        predictive_keywords=predictive_keywords,
+        metric=metric,
+        min_threshold=min_threshold,
+    )
+
+
+# def update_association_table(
+#     new_transactions: List[set],
+#     stored_transactions: List[set] = [],
+#     predictive_keywords: set = set(),
+#     min_support=0.1,
+#     metric="confidence",
+#     min_threshold=0.5,
+# ):
+#     """update the association table with new transactions
+#     Args:
+#         new_transactions : List[set] : list of new transactions
+#         stored_transactions : List[set] : list of stored transactions
+#         predictive_keywords : set : set of predictive keywords
+#         min_support : float : minimum support
+#         metric : str : metric to use
+#         min_threshold : float : minimum threshold"""
+#     return associations_table(
+#         transactions=stored_transactions + new_transactions,
+#         min_support=min_support,
+#         predictive_keywords=predictive_keywords,
+#         metric=metric,
+#         min_threshold=min_threshold,
+#     )
+
+
 from concurrent.futures import ThreadPoolExecutor
 
 
 def suggestions(
     associations_table: pd.DataFrame,
     new_itemset: set,
-    predictive_keywords: set,
+    predictive_keywords: set = set(),
     min_confidence=0.6,
     min_lift=1,
 ):

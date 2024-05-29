@@ -74,23 +74,24 @@ def query_embedding(query: str) -> np.ndarray:
     return np.array(embeddings_model.embed_query(query))
 
 
-def chunker(chunk_size: int, chunk_overlap: int, **kwargs):
-    return partial(
-        generate_split_keys, chunk_size=chunk_size, chunk_overlap=chunk_overlap
-    )
+def chunker(chunk_overlap: int, **kwargs):
+    return partial(generate_split_keys, chunk_overlap=chunk_overlap)
 
 
-_generate_split_keys = partial(generate_split_keys, chunk_size=3000, chunk_overlap=100)
+_generate_split_keys = partial(generate_split_keys, chunk_overlap=100)
+
+chunker_type = Callable[[Mapping[DocKey, str]], List[Tuple[str, int, int]]]
 
 
 # TODO : @cache_result : cache the result of this function
 def segment_keys(
     documents: Mapping[DocKey, str],
     chunker: Callable[
-        [Mapping[DocKey, str]], List[Tuple[str, int, int]]
+        [Mapping[DocKey, str], int], List[Tuple[str, int, int]]
     ] = _generate_split_keys,
+    max_chunk_size: int = 3000,
 ) -> List[Tuple[str, int, int]]:
-    return chunker(documents)
+    return chunker(documents, max_chunk_size)
 
 
 def doc_embeddings(
@@ -146,7 +147,7 @@ def query_answer(
     documents: Mapping[DocKey, str],
     top_k_segments: List[Tuple[str, int, int]],
     prompt_template: str = "Answer question {query} using the following documents: {documents}",
-    llm_model: str = "gpt-3.5-turbo",
+    llm_model: str = "gpt-4",
 ) -> str:
     chat_model = partial(oa.chat, model=llm_model)
     aggregated_text = ""

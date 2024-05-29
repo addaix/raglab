@@ -1,0 +1,29 @@
+{   
+    "Quelle est le but de définir certain termes dans les GCP?" : "éviter toute ambigüité",
+    "l'annexe peut-elle être séparée des GCP?" : "annexe s’intègre aux CGP et constitue un tout indissociable",
+    "Par quel terem générique est désigné le GCP?" : "désignées sous le terme générique de « Contrat »",
+    "Quelle est la signification de RGPD?" : "règlement général sur la protection des données",
+    "De quand date le RGPD?" : "27 avril 2016",
+    "Sur quoi prévaut le contract et ses règles de collaboration?" : "tout autre document contractuel",
+    "Par quoi peut être complété le contract?" : "par des annexes",
+    "Quelle est la condition pour que les annexes dérogent ou complètent le contract?" : "signées par les Parties",
+    "La signature du contract par les parties engage ..." : "En signant le Contrat, les Parties déclarent qu’elles ont pu exprimer l’ensemble de leurs demandes",
+
+    "Les parties doivent-elles colllaborer pour atteindre l'objectif? Ou bien que l'une des deux?" : "Les Parties conviennent de collaborer activement pour atteindre les objectifs de leur partenariat",
+    "Que dire de la contrainte à répondre en temps limité?" : "les Parties font preuve de réactivité pour formaliser une réponse",
+    
+    "Par quelle considérations se termine le contract?" : "Le contrat est conclu en considération des qualités du Partenaire",
+    "Sous traitance de tâches et conditions" : "Le Partenaire peut cependant sous-traiter certaines de ses missions, sous réserve du respect des règles qui s’appliquent à ce cas de figure dans le Contrat",
+
+    "Les raisons d'avoir un référent pour chaque partie" : "fluidifier les échanges",
+    "Les devoirs des référents" : "être en mesure d’accepter ou de refuser rapidement les propositions techniques proposées par le Partenaire et de faire les choix nécessaires à l’avancée des missions pour éviter des retards de mise en place et/ou de déploiements des prestations attendues",
+    "Passage relatif au remplacement des référents" : "Les parties remplacent sans délai le référent désigné dès que c’est nécessaire",
+
+    "Où sont détaillées les missions": "détaillées avec précision en Annexe du Contrat",
+
+    "Quelle est l'obligation générale du Partenaire dans l'exécution de ses missions ?" : "Le Partenaire est tenu dans l’exécution de ses missions à une obligation générale de conseil et de respect de la réglementation en vigueur",
+    "Quels sont les engagements du Partenaire concernant les moyens humains et matériels nécessaires à ses missions ?" : "Le Partenaire s’engage à fournir les moyens humains et matériels",
+    "Quelle obligation le Partenaire est-il soumis pour l'ensemble des prestations, sauf disposition contraire en Annexe ?" : "Sauf dispositions contraire prévues en Annexe, le Partenaire est soumis pour l’ensemble des prestations auxquelles il s’engage à une obligation de moyen",
+
+    "Que doit céder le partenaire sous réserve du respect de la contrepartie prévue à l’accord?" : "l’intégralité de ses droits patrimoniaux sur la réalisation des travaux effectués au profit d’Agilitation"
+}
