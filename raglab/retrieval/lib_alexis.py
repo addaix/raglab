@@ -9,6 +9,7 @@ from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import ChatOpenAI
 from meshed import DAG
 from msword import bytes_to_doc, get_text_from_docx
 import numpy as np
@@ -30,7 +31,9 @@ DocKey = str
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 embeddings_model = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-
+chat = ChatOpenAI(
+    temperature=0, model_name="gpt-4", openai_api_key=os.getenv("OPENAI_API_KEY")  # type: ignore
+).predict
 
 docs = {
     "doc1": "John and Mary went to the park",
@@ -147,9 +150,8 @@ def query_answer(
     documents: Mapping[DocKey, str],
     top_k_segments: List[Tuple[str, int, int]],
     prompt_template: str = "Answer question {query} using the following documents: {documents}",
-    llm_model: str = "gpt-4",
+    chat_model=chat,
 ) -> str:
-    chat_model = partial(oa.chat, model=llm_model)
     aggregated_text = ""
     for segment_key in top_k_segments:
         aggregated_text += documents[segment_key[0]][segment_key[1] : segment_key[2]]
