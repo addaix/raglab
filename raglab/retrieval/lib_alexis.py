@@ -19,6 +19,8 @@ from docx import Document
 from docx2python import docx2python
 from docx2python.iterators import iter_paragraphs
 import json
+import jsonschema
+from jsonschema import validate
 import pdfplumber
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain_openai import OpenAIEmbeddings
@@ -286,7 +288,6 @@ extension_to_encoder = {
 def extension_based_decoding(k, v):
     ext = "." + k.split(".")[-1]
     decoder = extension_to_decoder.get(ext, None)
-    print("decoder", decoder)
     if decoder is None:
         decoder = extension_to_decoder[".txt"]
     return decoder(v)
@@ -378,3 +379,12 @@ def populate_local_user_folders(defaults, local_user_folders):
         if k not in local_user_folders:
             local_user_folders[k] = defaults[k]
     return defaults
+
+
+def validate_json(data, schema):
+    try:
+        validate(instance=data, schema=schema)
+    except jsonschema.exceptions.ValidationError as err:
+        print(f"Validation error: {err.message}")
+        return False
+    return True
