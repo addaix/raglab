@@ -9,7 +9,7 @@ from scipy.signal import find_peaks
 from string import punctuation
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from meshed import DAG
+from meshed import DAG, code_to_dag
 import matplotlib.pyplot as plt
 from raglab.retrieval.lib_alexis import num_tokens
 
@@ -74,45 +74,109 @@ def gap_sentence(consecutive_cosines):
     """
     if len(consecutive_cosines) < 3:
         return 0
-    sentence_cut_id = np.argmin(consecutive_cosines[:-1]) + 1
+    sentence_cut_id = np.argmin(consecutive_cosines[:-1])
     return sentence_cut_id
 
 
 def gap_character(gap_sentence, sentence_split_ids):
-    return sentence_split_ids[gap_sentence][1]
+    return sentence_split_ids[gap_sentence][1] + 1
 
 
-def min_tokens(sentence_splits):
-    return max([num_tokens(sentence) for sentence in sentence_splits])
+def sentence_num_tokens(sentence_splits):
+    return [num_tokens(sentence) for sentence in sentence_splits]
+
+
+def max_sentence_tokens(sentence_num_tokens):
+    return max(sentence_num_tokens)
 
 
 def segment_keys(
-    text, consecutive_cosines, sentence_splits_ids, min_tokens, max_tokens=MAX_TOKENS
+    sentence_num_tokens,
+    consecutive_cosines,
+    sentence_splits_ids,
+    max_tokens=MAX_TOKENS,
+    start=0,
 ):
+    min_tokens = max_sentence_tokens(sentence_num_tokens)  # TODO as parameter
     assert max_tokens > min_tokens, "max_tokens must be greater than min_tokens"
-    print(f"min_tokens: {min_tokens}")
-    if num_tokens(text) < max_tokens:
-        return [(0, len(text))]
-    gap_sentence_id = gap_sentence(consecutive_cosines)
-    print(gap_sentence_id)
-    gap_character_id = gap_character(gap_sentence_id, sentence_splits_ids)
-    left = text[:gap_character_id]
-    print(f"left number of tokens: {num_tokens(left)}")
-    print(left)
+
+    if sum(sentence_num_tokens) <= max_tokens or len(sentence_num_tokens) == 1:
+        return [(start, sentence_splits_ids[-1][1])]
+        # return [sentence_splits_ids[-1][1]]
+
+    gap_sentence_id = gap_sentence(consecutive_cosines) + 1
     left_cosines = consecutive_cosines[:gap_sentence_id]
     left_split_ids = sentence_splits_ids[:gap_sentence_id]
-    right = text[gap_character_id:]
-    print(f"right number of tokens: {num_tokens(right)}")
-    print(right)
-    print("-----")
+    left_num_tokens = sentence_num_tokens[:gap_sentence_id]
     right_cosines = consecutive_cosines[gap_sentence_id:]
     right_split_ids = sentence_splits_ids[gap_sentence_id:]
+    right_num_tokens = sentence_num_tokens[gap_sentence_id:]
 
     return segment_keys(
-        left, left_cosines, left_split_ids, min_tokens, max_tokens=max_tokens
+        left_num_tokens,
+        left_cosines,
+        left_split_ids,
+        max_tokens=max_tokens,
+        start=start,
     ) + segment_keys(
-        right, right_cosines, right_split_ids, min_tokens, max_tokens=max_tokens
+        right_num_tokens,
+        right_cosines,
+        right_split_ids,
+        max_tokens=max_tokens,
+        start=right_split_ids[0][0],
     )
+
+
+def sentence_cut_ids(segment_keys, sentence_splits_ids):
+    """returns the indices of the sentences to cut. The cut sentence belong to the previous segment."""
+    stop_chars = [stop for start, stop in segment_keys[:-1]]
+    # get corresponding sentence id
+    sentence_cut_ids = [
+        i for i, (start, stop) in enumerate(sentence_splits_ids) if stop in stop_chars
+    ]
+    return sentence_cut_ids
+
+
+# def sentence_cut_ids(
+#     sentence_num_tokens,
+#     consecutive_cosines,
+#     sentence_splits_ids,
+#     max_tokens=MAX_TOKENS,
+#     start=0,
+# ):
+#     print("-----")
+#     min_tokens = max_sentence_tokens(sentence_num_tokens)  # TODO as parameter
+#     assert max_tokens > min_tokens, "max_tokens must be greater than min_tokens"
+
+#     if sum(sentence_num_tokens) <= max_tokens or len(sentence_num_tokens) == 1:
+#         return [len(sentence_splits_ids) + start - 1]
+
+#     gap_sentence_id = gap_sentence(consecutive_cosines) + 1
+#     print(gap_sentence_id)
+#     left_cosines = consecutive_cosines[:gap_sentence_id]
+#     print(f"len left_cosines: {len(left_cosines)}")
+#     left_split_ids = sentence_splits_ids[:gap_sentence_id]
+#     print(f"len left_split_ids: {len(left_split_ids)}")
+#     left_num_tokens = sentence_num_tokens[:gap_sentence_id]
+#     right_cosines = consecutive_cosines[gap_sentence_id:]
+#     print(f"len right_cosines: {len(right_cosines)}")
+#     right_split_ids = sentence_splits_ids[gap_sentence_id:]
+#     print(f"len right_split_ids: {len(right_split_ids)}")
+#     right_num_tokens = sentence_num_tokens[gap_sentence_id:]
+
+#     return sentence_cut_ids(
+#         left_num_tokens,
+#         left_cosines,
+#         left_split_ids,
+#         max_tokens=max_tokens,
+#         start=start,
+#     ) + sentence_cut_ids(
+#         right_num_tokens,
+#         right_cosines,
+#         right_split_ids,
+#         max_tokens=max_tokens,
+#         start=len(left_split_ids),
+#     )
 
 
 def text_segments(text, segment_keys):
@@ -140,17 +204,35 @@ def text_segments(text, segment_keys):
 #     return segments_ids
 
 
-def character_chunk_ids(sentence_cut_ids, sentence_splits_ids):
-    character_chunk_ids = []
-    start_character = 0
-    for stop_sentence in sentence_cut_ids:
-        stop_character = sentence_splits_ids[stop_sentence][1]
-        character_chunk_ids.append((start_character, stop_character))
-        start_character = stop_character
-    return character_chunk_ids
+# def character_chunk_ids(sentence_cut_ids, sentence_splits_ids):
+#     character_chunk_ids = []
+#     start_character = 0
+#     for stop_sentence in sentence_cut_ids:
+#         stop_character = sentence_splits_ids[stop_sentence][1]
+#         character_chunk_ids.append((start_character, stop_character))
+#         start_character = stop_character
+#     return character_chunk_ids
 
 
-# def character_chunk_ids(sentence_cut_ids, sentence_splits):
+# def segment_keys(sentence_cut_ids, sentence_splits_ids):
+#     """
+#     >>> sentence_splits_ids = [(0, 20), (20, 60), (60, 100)]
+#     >>> sentence_cut_id = [1]
+#     >>> character_chunk_ids = character_chunk_ids(sentence_chunk_ids, sentence_splits_ids)
+#     >>> character_chunk_ids
+#     [(0, 20), (20, 100)]
+#     """
+#     character_chunk_ids = []
+#     start_character = 0
+#     for stop_sentence in sentence_cut_ids:
+#         stop_character = sentence_splits_ids[stop_sentence][1]
+#         character_chunk_ids.append((start_character, stop_character))
+#         start_character = stop_character
+#     character_chunk_ids.append((start_character, sentence_splits_ids[-1][1]))
+#     return character_chunk_ids
+
+
+# def segment_keys(sentence_cut_ids, sentence_splits):
 #     """
 #     >>> sentence_splits = ['This is a sentence.', 'This is another sentence.', "Now here is a third sentence."]
 #     >>> sentence_cut_id = [1]
@@ -163,8 +245,11 @@ def character_chunk_ids(sentence_cut_ids, sentence_splits_ids):
 #     start_sentence = 0
 #     start_character = 0
 #     for stop_sentence in sentence_cut_ids:
-#         stop_character = start_character + len(
-#             " ".join(sentence_splits[start_sentence:stop_sentence])
+#         stop_character = start_character + sum(
+#             [
+#                 len(sentence)
+#                 for sentence in sentence_splits[start_sentence:stop_sentence]
+#             ]
 #         )
 #         character_chunk_ids.append((start_character, stop_character))
 #         start_character = stop_character
@@ -173,12 +258,7 @@ def character_chunk_ids(sentence_cut_ids, sentence_splits_ids):
 
 
 def chunk_text(character_chunk_ids, text):
-    print(len(text))
     return [text[start:stop] for start, stop in character_chunk_ids]
-
-
-def sentence_cut_ids(segment_keys):
-    return [stop for _, stop in segment_keys[:-1]]
 
 
 def display_cut_ids(
@@ -218,10 +298,10 @@ funcs = [
     sentence_splits,
     sentence_embeddings,
     consecutive_cosines,
+    sentence_num_tokens,
+    sentence_cut_ids,
     segment_keys,
     text_segments,
-    sentence_cut_ids,
-    min_tokens,
     # meaningful_sentences,
     # sentence_cut_ids,
     # sentence_chunk_ids,
@@ -230,6 +310,28 @@ funcs = [
     display_cut_ids,
 ]
 segmentation_dag = DAG(funcs)
+
+
+def character_chunker(text, max_chunk_size):
+    splits_ids = sentence_splits_ids(text)
+    sentences = sentence_splits(text, splits_ids)
+    num_tokens = sentence_num_tokens(sentences)
+    segment_keys = []
+    start = splits_ids[0][0]
+    stop = splits_ids[0][1]
+    numtok = num_tokens[0]
+    n_sentences = len(splits_ids)
+    for i in range(1, n_sentences):
+        if numtok + num_tokens[i] > max_chunk_size:
+            segment_keys.append((start, stop))
+            numtok = num_tokens[i]
+            start = splits_ids[i][0]
+            stop = splits_ids[i][1]
+        else:
+            numtok += num_tokens[i]
+            stop = splits_ids[i][1]
+    segment_keys.append((start, stop))
+    return segment_keys
 
 
 # def segment_keys(documents, api_key=OPENAI_API_KEY, language="english", **kwargs):

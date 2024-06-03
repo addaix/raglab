@@ -25,7 +25,7 @@ from langchain_openai import OpenAIEmbeddings
 import pickle
 import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
-
+import PyPDF2
 
 DocKey = str
 
@@ -92,7 +92,7 @@ def segment_keys(
     chunker: Callable[
         [Mapping[DocKey, str], int], List[Tuple[str, int, int]]
     ] = _generate_split_keys,
-    max_chunk_size: int = 3000,
+    max_chunk_size: int = 1000,
 ) -> List[Tuple[str, int, int]]:
     return chunker(documents, max_chunk_size)
 
@@ -202,16 +202,60 @@ def tokens(string: str, encoding_name: str = "cl100k_base") -> List[str]:
     return encoding.encode(string)
 
 
-def read_pdf_text(pdf_reader):
+# def read_pdf_text(pdf_reader):
+#     text_pages = []
+#     for page in pdf_reader.pages:
+#         text_pages.append(page.extract_text())
+#     return text_pages
+
+
+# def read_pdf(file, *, page_sep="\n--------------\n") -> str:
+#     with pdfplumber.open(file) as pdf:
+#         return page_sep.join(read_pdf_text(pdf))
+
+
+def read_pdf_text_with_plumber(pdf_reader):
     text_pages = []
     for page in pdf_reader.pages:
-        text_pages.append(page.extract_text())
+        page_text = page.extract_text()
+        if page_text:
+            text_pages.append(page_text)
+    return text_pages
+
+
+def read_pdf_text_with_pypdf2(pdf_reader):
+    text_pages = []
+    for page_num in range(len(pdf_reader.pages)):
+        page = pdf_reader.pages[page_num]
+        page_text = page.extract_text()
+        if page_text:
+            text_pages.append(page_text)
     return text_pages
 
 
 def read_pdf(file, *, page_sep="\n--------------\n") -> str:
-    with pdfplumber.open(file) as pdf:
-        return page_sep.join(read_pdf_text(pdf))
+    try:
+        with pdfplumber.open(BytesIO(file)) as pdf:
+            text_pages = read_pdf_text_with_plumber(pdf)
+            combined_text = page_sep.join(text_pages)
+            if combined_text.strip():  # Check if the extracted text is not empty
+                return combined_text
+            else:
+                raise ValueError("Empty text extracted with pdfplumber")
+    except Exception as e:
+        print(f"pdfplumber failed with error: {e}, trying PyPDF2...")
+        try:
+            bio = BytesIO(file)  # Ensure BytesIO object is read correctly
+            reader = PyPDF2.PdfReader(bio)
+            text_pages = read_pdf_text_with_pypdf2(reader)
+            combined_text = page_sep.join(text_pages)
+            if combined_text.strip():  # Check if the extracted text is not empty
+                return combined_text
+            else:
+                raise ValueError("Empty text extracted with PyPDF2")
+        except Exception as e2:
+            print(f"PyPDF2 also failed with error: {e2}")
+            raise e2  # Re-raise the last exception
 
 
 def full_docx_decoder(doc_bytes):
@@ -226,7 +270,7 @@ def full_docx_decoder(doc_bytes):
 extension_to_decoder = {
     ".txt": lambda obj: obj.decode("utf-8"),
     ".json": json.loads,
-    ".pdf": Pipe(BytesIO, read_pdf),
+    ".pdf": read_pdf,
     ".docx": Pipe(BytesIO, full_docx_decoder),
     ".pkl": lambda obj: pickle.loads(obj),
 }
@@ -242,6 +286,7 @@ extension_to_encoder = {
 def extension_based_decoding(k, v):
     ext = "." + k.split(".")[-1]
     decoder = extension_to_decoder.get(ext, None)
+    print("decoder", decoder)
     if decoder is None:
         decoder = extension_to_decoder[".txt"]
     return decoder(v)
