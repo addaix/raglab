@@ -167,7 +167,7 @@ funcs = [
     segment_keys,
     doc_embeddings,
     top_k_segments,
-    chunker,
+    # chunker,
     query_embedding,
     query_answer,
     query,
