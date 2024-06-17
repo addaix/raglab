@@ -1,0 +1,13 @@
+Ne pas confondre reconnaissance automatique de documents, ou RAD, ou de type de documents et lecture automatique de documents (LAD). 
+En effet, si la reconnaissance de caractères ou de formes et autres cases à cocher permet de distinguer un document d’un autre ainsi que certains mots contenus de manière à alimenter une base d’index destinée à une gestion électronique de documents, l’appellation LAD, pour lecture automatique de documents, concerne les processus évolués de capture de données sur des documents structurés et désormais aussi non structurés.
+L’objectif n’est pas d’archiver des documents, mais d’alimenter un système d’informations (souvent un système de GED) avec les données contenues dans les documents numérisés dans le cadre de processus de type industriel. La richesse d’une solution avancée de LAD réside dans sa capacité à fournir, en bout de chaîne de traitement, la totalité des informations attendues par le système d'informations lui-même.
+
+Un système de reconnaissance faciale est une application logicielle visant à reconnaître automatiquement une personne grâce à son visage. Il s'agit d'un sujet particulièrement étudié en vision par ordinateur, avec de très nombreuses publications et brevets, et des conférences spécialisées.
+La reconnaissance de visage a de nombreuses applications en vidéosurveillance, sécurité, biométrie, photographie, médecine, robotique, indexation d'images et de vidéos, recherche d'images par le contenu, etc. Ces systèmes sont généralement utilisés à des fins de sécurité publique ou de protection de la vie privée ou de données privées ou d'entreprises, dont pour déverrouiller ordinateur/mobile/console, mais aussi en domotique. Le fonctionnement de ces systèmes se base sur une ou plusieurs caméras pour reconnaître l'utilisateur.
+
+La LAD prend une importance croissante dans les processus de dématérialisation où elle apparaît comme un axe de productivité.
+La LAD permet, par exemple, d’accélérer le traitement des factures fournisseurs :
+archivage et indexation automatique de l'image du document ;
+(pré)saisie automatisée des écritures comptables (montants HT, TTC...).
+La saisie des factures et, de façon plus générale, des documents transactionnels tels que bons de livraison ou bons de commande permet de réaliser des progrès dans l’organisation en fiabilisant les procédures de traitement avec une alimentation plus rapide du système d’information.
+
