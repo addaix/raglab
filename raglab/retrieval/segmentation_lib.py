@@ -35,20 +35,39 @@ def sentence_splits_ids(text, sep=[".", "!", "?"]):
     return indices
 
 
-def sentence_splits(text, sentence_splits_ids):
-    return [text[start:stop] for start, stop in sentence_splits_ids]
+def is_numerical(text):
+    try:
+        float(text)
+        return True
+    except ValueError:
+        return False
 
 
-# def is_meaningful(sentence, language="english"):
-#     stop_words = set(stopwords.words(language))
-#     words = word_tokenize(sentence)
-#     # Filter out punctuation and stopwords
-#     meaningful_words = [
-#         word
-#         for word in words
-#         if word.lower() not in stop_words and word not in punctuation
-#     ]
-#     return len(meaningful_words) > 0
+def is_meaningful(sentence):
+    stop_words = set(stopwords.words("english")).union(set(stopwords.words("french")))
+    words = word_tokenize(sentence)
+    # Filter out punctuation and stopwords
+    meaningful_words = [
+        word
+        for word in words
+        if word.lower() not in stop_words
+        and word not in punctuation
+        and len(word) > 1
+        and not is_numerical(word)
+    ]
+    return len(meaningful_words) > 0
+
+
+def filtered_sentence_split_ids(sentence_splits_ids, text):
+    return [
+        (start, stop)
+        for start, stop in sentence_splits_ids
+        if is_meaningful(text[start:stop])
+    ]
+
+
+def sentence_splits(text, filtered_sentence_split_ids):
+    return [text[start:stop] for start, stop in filtered_sentence_split_ids]
 
 
 # def meaningful_sentences(sentence_splits):
@@ -93,7 +112,7 @@ def max_sentence_tokens(sentence_num_tokens):
 def segment_keys(
     sentence_num_tokens,
     consecutive_cosines,
-    sentence_splits_ids,
+    filtered_sentence_split_ids,
     max_tokens=MAX_TOKENS,
     start=0,
 ):
@@ -101,15 +120,14 @@ def segment_keys(
     assert max_tokens > min_tokens, "max_tokens must be greater than min_tokens"
 
     if sum(sentence_num_tokens) <= max_tokens or len(sentence_num_tokens) == 1:
-        return [(start, sentence_splits_ids[-1][1])]
-        # return [sentence_splits_ids[-1][1]]
+        return [(start, filtered_sentence_split_ids[-1][1])]
 
     gap_sentence_id = gap_sentence(consecutive_cosines) + 1
     left_cosines = consecutive_cosines[:gap_sentence_id]
-    left_split_ids = sentence_splits_ids[:gap_sentence_id]
+    left_split_ids = filtered_sentence_split_ids[:gap_sentence_id]
     left_num_tokens = sentence_num_tokens[:gap_sentence_id]
     right_cosines = consecutive_cosines[gap_sentence_id:]
-    right_split_ids = sentence_splits_ids[gap_sentence_id:]
+    right_split_ids = filtered_sentence_split_ids[gap_sentence_id:]
     right_num_tokens = sentence_num_tokens[gap_sentence_id:]
 
     return segment_keys(
@@ -127,12 +145,14 @@ def segment_keys(
     )
 
 
-def sentence_cut_ids(segment_keys, sentence_splits_ids):
+def sentence_cut_ids(segment_keys, filtered_sentence_split_ids):
     """returns the indices of the sentences to cut. The cut sentence belong to the previous segment."""
     stop_chars = [stop for start, stop in segment_keys[:-1]]
     # get corresponding sentence id
     sentence_cut_ids = [
-        i for i, (start, stop) in enumerate(sentence_splits_ids) if stop in stop_chars
+        i
+        for i, (start, stop) in enumerate(filtered_sentence_split_ids)
+        if stop in stop_chars
     ]
     return sentence_cut_ids
 
@@ -311,6 +331,7 @@ def display_cut_ids(
 
 funcs = [
     sentence_splits_ids,
+    filtered_sentence_split_ids,
     sentence_splits,
     sentence_embeddings,
     consecutive_cosines,
