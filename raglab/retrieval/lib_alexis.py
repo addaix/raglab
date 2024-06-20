@@ -8,7 +8,8 @@ from heapq import nlargest
 from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from meshed import DAG
 from msword import bytes_to_doc, get_text_from_docx
@@ -43,36 +44,87 @@ docs = {
 }
 
 
+# def generate_split_keys(
+#     docs: Mapping[DocKey, str],
+#     chunk_size: int,
+#     chunk_overlap: int,
+#     separators: Optional[List[str]] = None,
+#     keep_separator: bool = True,
+#     is_separator_regex: bool = False,
+#     **kwargs: Any,
+# ) -> List[Tuple[str, int, int]]:
+#     """Generate the split keys for the documents: Split key is a tuple of (document_name, start_index, end_index)"""
+#     text_splitter = RecursiveCharacterTextSplitter(
+#         chunk_size=chunk_size,
+#         chunk_overlap=chunk_overlap,
+#         length_function=len,
+#         add_start_index=True,  # enforce the start index
+#         is_separator_regex=is_separator_regex,
+#         keep_separator=keep_separator,
+#     )
+#     documents = text_splitter.create_documents(
+#         list(docs.values()), metadatas=list({"document_name": k} for k in docs.keys())
+#     )
+
+#     return [
+#         (
+#             d.metadata["document_name"],
+#             d.metadata["start_index"],
+#             d.metadata["start_index"] + len(d.page_content),
+#         )
+#         for d in documents
+#     ]
+
+
+def split_text(text, max_chunk_size, separators=None):
+    if separators is None:
+        separators = ["\n", ".", "!", "?"]
+
+    def recursive_split(text, max_chunk_size, separators):
+        if len(text) <= max_chunk_size:
+            return [(0, len(text))]
+
+        best_split_index = -1
+        for sep in separators:
+            split_index = text.rfind(sep, 0, max_chunk_size)
+            if split_index != -1:
+                best_split_index = split_index + len(sep)
+                break
+
+        if best_split_index == -1:
+            best_split_index = max_chunk_size
+
+        left_splits = recursive_split(
+            text[:best_split_index], max_chunk_size, separators
+        )
+        right_splits = recursive_split(
+            text[best_split_index:], max_chunk_size, separators
+        )
+        right_splits = [
+            (start + best_split_index, end + best_split_index)
+            for start, end in right_splits
+        ]
+
+        return left_splits + right_splits
+
+    indices = recursive_split(text, max_chunk_size, separators)
+    return indices
+
+
 def generate_split_keys(
     docs: Mapping[DocKey, str],
     chunk_size: int,
     chunk_overlap: int,
     separators: Optional[List[str]] = None,
-    keep_separator: bool = True,
-    is_separator_regex: bool = False,
-    **kwargs: Any,
 ) -> List[Tuple[str, int, int]]:
-    """Generate the split keys for the documents: Split key is a tuple of (document_name, start_index, end_index)"""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-        add_start_index=True,  # enforce the start index
-        is_separator_regex=is_separator_regex,
-        keep_separator=keep_separator,
-    )
-    documents = text_splitter.create_documents(
-        list(docs.values()), metadatas=list({"document_name": k} for k in docs.keys())
-    )
-
-    return [
-        (
-            d.metadata["document_name"],
-            d.metadata["start_index"],
-            d.metadata["start_index"] + len(d.page_content),
-        )
-        for d in documents
-    ]
+    segment_keys = []
+    for doc_key, doc_text in docs.items():
+        split_indices = split_text(doc_text, chunk_size, separators)
+        for i, (start, end) in enumerate(split_indices):
+            segment_keys.append(
+                (doc_key, max(0, start - chunk_overlap), end + chunk_overlap)
+            )
+    return segment_keys
 
 
 def query_embedding(query: str) -> np.ndarray:
