@@ -1,4 +1,5 @@
-""" This module provides functions to retrieve documents from a corpus based on a query. """
+""" This module provides functions to retrieve documents from a corpus based on a query. 
+There are also functions to read and write documents in different formats."""
 
 from config2py import config_getter, get_app_data_folder, process_path
 from dotenv import load_dotenv

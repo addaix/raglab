@@ -1,3 +1,10 @@
+""" This module contains functions agregated in a DAG that does :
+- extracts sets of words in a text
+- match the sets of words with a set of keywords
+- find associations between sets of words
+- suggest new keywords based on the associations
+"""
+
 import re
 from meshed import DAG
 import pandas as pd
@@ -145,6 +152,16 @@ def suggestions(
     min_confidence=0.6,
     min_lift=1,
 ):
+    """returns a set of words that are suggested based on the associations table, predictive_keywords, min_confidence and min_lift
+    Args:
+        associations_table : pd.DataFrame : the association table
+        new_itemset : set : the new itemset
+        predictive_keywords : set : the set of predictive keywords (words that help for suggestion but are not suggested)
+        min_confidence : float : the minimum confidence
+        min_lift : float : the minimum lift
+
+        Returns:
+            set : the set of suggested words"""
     selected_rows = associations_table[
         (associations_table["antecedents"].apply(lambda x: x.issubset(new_itemset)))
         & (associations_table["confidence"] > min_confidence)
