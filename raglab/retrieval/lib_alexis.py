@@ -9,8 +9,6 @@ from heapq import nlargest
 from importlib.resources import files
 from io import BytesIO
 from i2 import Namespace
-
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from meshed import DAG
 from msword import bytes_to_doc, get_text_from_docx
@@ -26,10 +24,13 @@ from jsonschema import validate
 import pdfplumber
 from sklearn.metrics.pairwise import cosine_similarity
 from langchain_openai import OpenAIEmbeddings
+from langdetect import detect, DetectorFactory
+from langdetect.lang_detect_exception import LangDetectException
 import pickle
 import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
 import PyPDF2
+
 
 DocKey = str
 
@@ -78,6 +79,7 @@ docs = {
 
 
 def split_text(text, max_chunk_size, separators=None):
+    """Split text into chunks of size max_chunk_size, using the separators provided."""
     if separators is None:
         separators = ["\n", ".", "!", "?"]
 
@@ -257,18 +259,6 @@ def tokens(string: str, encoding_name: str = "cl100k_base") -> List[str]:
     return encoding.encode(string)
 
 
-# def read_pdf_text(pdf_reader):
-#     text_pages = []
-#     for page in pdf_reader.pages:
-#         text_pages.append(page.extract_text())
-#     return text_pages
-
-
-# def read_pdf(file, *, page_sep="\n--------------\n") -> str:
-#     with pdfplumber.open(file) as pdf:
-#         return page_sep.join(read_pdf_text(pdf))
-
-
 def read_pdf_text_with_plumber(pdf_reader):
     text_pages = []
     for page in pdf_reader.pages:
@@ -288,13 +278,22 @@ def read_pdf_text_with_pypdf2(pdf_reader):
     return text_pages
 
 
+def fix_spaces(text):
+    # Add any custom logic to handle spaces, if necessary
+    # For now, we'll just replace multiple spaces with a single space
+    import re
+
+    return re.sub(r"\s+", " ", text)
+
+
 def read_pdf(file, *, page_sep="\n--------------\n") -> str:
     try:
         with pdfplumber.open(BytesIO(file)) as pdf:
             text_pages = read_pdf_text_with_plumber(pdf)
             combined_text = page_sep.join(text_pages)
-            if combined_text.strip():  # Check if the extracted text is not empty
-                return combined_text
+            fixed_text = fix_spaces(combined_text)
+            if fixed_text.strip():
+                return fixed_text
             else:
                 raise ValueError("Empty text extracted with pdfplumber")
     except Exception as e:
@@ -304,8 +303,9 @@ def read_pdf(file, *, page_sep="\n--------------\n") -> str:
             reader = PyPDF2.PdfReader(bio)
             text_pages = read_pdf_text_with_pypdf2(reader)
             combined_text = page_sep.join(text_pages)
-            if combined_text.strip():  # Check if the extracted text is not empty
-                return combined_text
+            fixed_text = fix_spaces(combined_text)
+            if fixed_text.strip():  # Check if the extracted text is not empty
+                return fixed_text
             else:
                 raise ValueError("Empty text extracted with PyPDF2")
         except Exception as e2:
@@ -376,55 +376,21 @@ def get_config(key, sources) -> str:
     return value
 
 
+# Fix seed for reproducibility
+DetectorFactory.seed = 0
+
+
 def simple_language_detection(text: str):
-    """Detects between english and french regading the text language."""
-    french_words = set(
-        [
-            "du",
-            "de",
-            "le",
-            "la",
-            "les",
-            "un",
-            "une",
-            "des",
-            "au",
-            "aux",
-            "en",
-            "et",
-            "ou",
-            "qui",
-            "que",
-        ]
-    )
-    english_words = set(
-        [
-            "the",
-            "a",
-            "an",
-            "of",
-            "to",
-            "and",
-            "or",
-            "who",
-            "which",
-            "that",
-            "this",
-            "these",
-            "those",
-        ]
-    )
-    text = text.lower()
-    french_count = sum([1 for word in text.split() if word in french_words])
-    english_count = sum([1 for word in text.split() if word in english_words])
-    if french_count == english_count:
+    try:
+        lang = detect(text)
+        if lang == "french":
+            return "french"
+        elif lang == "english":
+            return "english"
+        else:
+            return None
+    except LangDetectException:
         return None
-    if french_count == english_count == 0:
-        return None
-    if french_count > english_count:
-        return "french"
-    else:
-        return "english"
 
 
 def populate_local_user_folders(defaults, local_user_folders):
