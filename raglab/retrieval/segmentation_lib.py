@@ -75,10 +75,6 @@ def sentence_splits(text, filtered_sentence_split_ids):
     return [text[start:stop] for start, stop in filtered_sentence_split_ids]
 
 
-# def meaningful_sentences(sentence_splits):
-#     return [sentence for sentence in sentence_splits if is_meaningful(sentence)]
-
-
 def sentence_embeddings(sentence_splits, api_key=OPENAI_API_KEY, dimension=512):
     """Returns the embeddings of the sentences using the OpenAI API."""
     embeddings_model = OpenAIEmbeddings(
@@ -238,10 +234,13 @@ funcs = [
     # chunk_text,
     display_cut_ids,
 ]
+
+""" this dag gathers all the functions to segment semantically a text into chunks of a maximum number of tokens. """
 segmentation_dag = DAG(funcs)
 
 
 def character_chunker(text, max_chunk_size):
+    """Segments a text into chunks of a maximum number of tokens. Hard limit on the number of tokens per chunk."""
     splits_ids = sentence_splits_ids(text)
     sentences = sentence_splits(text, splits_ids)
     num_tokens = sentence_num_tokens(sentences)

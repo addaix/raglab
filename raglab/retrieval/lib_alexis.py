@@ -27,6 +27,7 @@ from langchain_openai import OpenAIEmbeddings
 from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
 import pickle
+import re
 import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
 import PyPDF2
@@ -131,16 +132,11 @@ def generate_split_keys(
 
 
 def query_embedding(query: str) -> np.ndarray:
+    """Embed the query using the embeddings model."""
     return np.array(embeddings_model.embed_query(query))
 
 
-def chunker(chunk_overlap: int, **kwargs):
-    return partial(generate_split_keys, chunk_overlap=chunk_overlap)
-
-
 _generate_split_keys = partial(generate_split_keys, chunk_overlap=100)
-
-chunker_type = Callable[[Mapping[DocKey, str]], List[Tuple[str, int, int]]]
 
 
 # TODO : @cache_result : cache the result of this function
@@ -174,6 +170,7 @@ def doc_embeddings(
 def dump_embeddings(
     doc_embeddings: Mapping[Tuple[str, int, int], np.ndarray], path: str
 ):
+    """TODO : Save the embeddings to a file"""
     pass
 
 
@@ -183,6 +180,7 @@ def top_k_segments(
     k: int = 1,
     distance_metric: Callable[[np.ndarray, np.ndarray], float] = cosine_similarity,
 ) -> List[Tuple[str, int, int]]:
+    """Return the top k segments based on the distance metric between the query embedding and the document embeddings."""
     top_k = nlargest(
         k,
         (
@@ -209,6 +207,7 @@ def query_answer(
     prompt_template: str = "Answer question {query} using the following documents: {documents}",
     chat_model=chat,
 ) -> str:
+    """Return the answer to the query using the top k segments from the documents."""
     aggregated_text = ""
     for segment_key in top_k_segments:
         aggregated_text += documents[segment_key[0]][segment_key[1] : segment_key[2]]
@@ -227,11 +226,17 @@ funcs = [
     query_answer,
     query,
 ]
+
+""" Gather the functions required for a RAG pipeline :
+It is a callbale and you can slice it to get the functions you need.
+Example : dag["segment_keys":"doc_embeddings"](documents, chunker, max_chunk_size)"""
 dag = DAG(funcs)
 
-dag.dot_digraph()
+# dag.dot_digraph()  to visualize the DAG
 
 
+# ----------------------------------------------
+# Other functions
 def return_save_bytes(save_function):
     """Return bytes from a save function.
 
@@ -249,14 +254,20 @@ def return_save_bytes(save_function):
 
 
 def num_tokens(string: str, encoding_name: str = "cl100k_base") -> int:
+    """Return the number of tokens in a string encoded with a given encoding."""
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
 
 def tokens(string: str, encoding_name: str = "cl100k_base") -> List[str]:
+    """Return the tokens of a string encoded with a given encoding."""
     encoding = tiktoken.get_encoding(encoding_name)
     return encoding.encode(string)
+
+
+# ----------------------------------------------
+# Functions to read and write documents in different formats
 
 
 def read_pdf_text_with_plumber(pdf_reader):
@@ -281,8 +292,6 @@ def read_pdf_text_with_pypdf2(pdf_reader):
 def fix_spaces(text):
     # Add any custom logic to handle spaces, if necessary
     # For now, we'll just replace multiple spaces with a single space
-    import re
-
     return re.sub(r"\s+", " ", text)
 
 
@@ -329,7 +338,6 @@ extension_to_decoder = {
     ".docx": Pipe(BytesIO, full_docx_decoder),
     ".pkl": lambda obj: pickle.loads(obj),
 }
-
 extension_to_encoder = {
     ".txt": lambda obj: obj.encode("utf-8"),
     ".json": json.dumps,
@@ -339,6 +347,7 @@ extension_to_encoder = {
 
 
 def extension_based_decoding(k, v):
+    """Decode the value v based on the extension of the file key (k)."""
     ext = "." + k.split(".")[-1]
     decoder = extension_to_decoder.get(ext, None)
     if decoder is None:
@@ -347,6 +356,7 @@ def extension_based_decoding(k, v):
 
 
 def extension_based_encoding(k, v):
+    """Encode the value v based on the extension of the file key (k)."""
     ext = "." + k.split(".")[-1]
     encoder = extension_to_encoder.get(ext, None)
     if encoder is None:
@@ -355,12 +365,13 @@ def extension_based_encoding(k, v):
 
 
 def extension_base_wrap(store):
+    """Wrap a store with extension-based encoding and decoding."""
     return wrap_kvs(
         store, postget=extension_based_decoding
     )  # , preset=extension_base_encoding)
 
 
-from typing import List
+# ----------------------------------------------
 
 
 def get_config(key, sources) -> str:
@@ -381,6 +392,7 @@ DetectorFactory.seed = 0
 
 
 def simple_language_detection(text: str):
+    """Detect the language of the text and return it if it is either French or English."""
     try:
         lang = detect(text)
         if lang == "french":
@@ -394,6 +406,9 @@ def simple_language_detection(text: str):
 
 
 def populate_local_user_folders(defaults, local_user_folders):
+    """Populate the local user folders with the default values.
+    If a key is missing in the local user folders, it is added with the default value delivered with the app.
+    """
     for k in defaults:
         if k not in local_user_folders:
             local_user_folders[k] = defaults[k]
@@ -401,6 +416,7 @@ def populate_local_user_folders(defaults, local_user_folders):
 
 
 def validate_json(data, schema):
+    """validate the data against the schema"""
     try:
         validate(instance=data, schema=schema)
     except jsonschema.exceptions.ValidationError as err:

@@ -5,16 +5,18 @@
 - suggest new keywords based on the associations
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import re
 from meshed import DAG
 import pandas as pd
-import numpy as np
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import apriori
+import numpy as np
 from functools import partial
 from typing import List
 
 
+# --------------------- Extracting sets of words ---------------------
 def set_from_text_maj(txt):
     """Process a text to extract the set of stack keywords"""
     to_remove = [
@@ -117,34 +119,6 @@ def associations_table(
     )
 
 
-# def update_association_table(
-#     new_transactions: List[set],
-#     stored_transactions: List[set] = [],
-#     predictive_keywords: set = set(),
-#     min_support=0.1,
-#     metric="confidence",
-#     min_threshold=0.5,
-# ):
-#     """update the association table with new transactions
-#     Args:
-#         new_transactions : List[set] : list of new transactions
-#         stored_transactions : List[set] : list of stored transactions
-#         predictive_keywords : set : set of predictive keywords
-#         min_support : float : minimum support
-#         metric : str : metric to use
-#         min_threshold : float : minimum threshold"""
-#     return associations_table(
-#         transactions=stored_transactions + new_transactions,
-#         min_support=min_support,
-#         predictive_keywords=predictive_keywords,
-#         metric=metric,
-#         min_threshold=min_threshold,
-#     )
-
-
-from concurrent.futures import ThreadPoolExecutor
-
-
 def suggestions(
     associations_table: pd.DataFrame,
     new_itemset: set,
@@ -171,17 +145,6 @@ def suggestions(
     for consequents in selected_rows["consequents"]:
         set_.update(consequents)
     return set_.difference(predictive_keywords.union(new_itemset))
-
-
-# def filtered_suggestions(
-#     suggestions: set, new_itemset: set, min_confidence=0.6, min_lift=1
-# ):
-#     """returns a set og items that are suggested"""
-#     filtered = set()
-#     for _, row in suggestions.iterrows():
-#         if row["confidence"] > min_confidence and row["lift"] > min_lift:
-#             filtered.update(row["consequents"])
-#     return filtered.difference(new_itemset)
 
 
 funcs = [
