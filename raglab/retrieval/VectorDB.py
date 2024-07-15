@@ -106,7 +106,6 @@ class ChunkDB:
     chunk_size: int = 400
     chunk_overlap: int = 100
 
-    @cached_property
     def text_splitter(self):
         return RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
