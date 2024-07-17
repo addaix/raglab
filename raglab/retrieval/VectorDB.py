@@ -106,15 +106,6 @@ class ChunkDB:
     chunk_size: int = 400
     chunk_overlap: int = 100
 
-    def text_splitter(self):
-        return RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=min(self.chunk_overlap, self.chunk_size - 1),
-            length_function=len,
-            add_start_index=True,  # enforce the start index
-            is_separator_regex=False,
-        )
-
     @cached_property
     def segments(self):
         return self.mk_segment_store(self.docs)
@@ -151,7 +142,14 @@ class ChunkDB:
 
     def mk_segment_store(self, docs):
         """Creates and returns a segment store from a dictionary of documents. Segment store is a mapping from segment keys to segments."""
-        segment_keys = generate_split_keys(docs, self.text_splitter(), metadatas=[])
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size,
+            chunk_overlap=min(self.chunk_overlap, self.chunk_size - 1),
+            length_function=len,
+            add_start_index=True,  # enforce the start index
+            is_separator_regex=False,
+        )
+        segment_keys = generate_split_keys(docs, text_splitter, metadatas=[])
         return SegmentMapping(docs, segment_keys)
 
     def search(self, query: str, k: int = 1) -> Iterable[DocKey]:
