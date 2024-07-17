@@ -151,7 +151,7 @@ class ChunkDB:
 
     def mk_segment_store(self, docs):
         """Creates and returns a segment store from a dictionary of documents. Segment store is a mapping from segment keys to segments."""
-        segment_keys = generate_split_keys(docs, self.text_splitter, metadatas=[])
+        segment_keys = generate_split_keys(docs, self.text_splitter(), metadatas=[])
         return SegmentMapping(docs, segment_keys)
 
     def search(self, query: str, k: int = 1) -> Iterable[DocKey]:
