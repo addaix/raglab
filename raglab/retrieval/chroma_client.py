@@ -9,7 +9,14 @@ class ChromaClient:
     def __init__(self):
         load_dotenv()
         chroma_key = os.getenv("CHROMA_KEY")
-        self.client = chromadb.HttpClient(host='149.202.47.109', port="45000", settings=Settings(chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider", chroma_client_auth_credentials=chroma_key))
+        self.client = chromadb.HttpClient(
+            host="149.202.47.109",
+            port="45000",
+            settings=Settings(
+                chroma_client_auth_provider="chromadb.auth.token.TokenAuthClientProvider",
+                chroma_client_auth_credentials=chroma_key,
+            ),
+        )
 
     def get_collections(self):
         collections = self.client.list_collections()

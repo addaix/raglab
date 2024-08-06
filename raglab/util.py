@@ -1,23 +1,22 @@
 """Utils for raglab"""
 
-
 from config2py import get_configs_folder_for_app
-from i2 import Pipe 
+from i2 import Pipe
 from msword.base import bytes_to_doc, get_text_from_docx
 import os
 from pdfdol.base import bytes_to_pdf_text_pages
 import re
 from types import SimpleNamespace
 
-app_dir = os.environ.get('RAGLAB_APP_FOLDER', None) or get_configs_folder_for_app(
-    'raglab'
+app_dir = os.environ.get("RAGLAB_APP_FOLDER", None) or get_configs_folder_for_app(
+    "raglab"
 )
 
 
-configs_dir = os.path.join(app_dir, 'configs')
-data_dir = os.path.join(app_dir, 'data')
-local_stores_dir = os.path.join(app_dir, 'local_stores')
-users_dir_name = 'u'
+configs_dir = os.path.join(app_dir, "configs")
+data_dir = os.path.join(app_dir, "data")
+local_stores_dir = os.path.join(app_dir, "local_stores")
+users_dir_name = "u"
 local_space_stores_dir = os.path.join(local_stores_dir, users_dir_name)
 
 
@@ -160,53 +159,59 @@ def clog(condition, *args, log_func=print, **kwargs):
     if condition:
         return log_func(*args, **kwargs)
 
+
 msword_to_string = Pipe(bytes_to_doc, get_text_from_docx)
 
-def pdf_to_string(x) :
+
+def pdf_to_string(x):
     """Converts a PDF to a string."""
-    return ''.join(bytes_to_pdf_text_pages(x))
+    return "".join(bytes_to_pdf_text_pages(x))
+
 
 DFLT_FORMAT_EGRESS = {
-    'text': lambda x: x,
-    'pdf': pdf_to_string,
-    'msword': msword_to_string,
+    "text": lambda x: x,
+    "pdf": pdf_to_string,
+    "msword": msword_to_string,
 }
 # note: see from pdfdol.base import bytes_to_pdf_text_pages
+
 
 def extract_string_from_data_url(data_url, *, format_egress=DFLT_FORMAT_EGRESS):
     """Extract a string from a data URL."""
     import base64
 
     # Split the URL at the first comma to separate the metadata from the base64 content
-    metadata, encoded = data_url.split(',', 1)
-    header, *_ = metadata.split('/')
-    _, data_format = header.split(':')
-    
-    egress = format_egress.get(data_format, lambda x: x)
+    metadata, encoded = data_url.split(",", 1)
+    header, *_ = metadata.split("/")
+    _, data_format = header.split(":")
 
+    egress = format_egress.get(data_format, lambda x: x)
 
     # Ensure the base64 string is a multiple of 4 in length by padding with '='
     padding = 4 - len(encoded) % 4
     if padding and padding != 4:
-        encoded += '=' * padding
+        encoded += "=" * padding
 
     # Decode the base64 string
-    original_string = base64.b64decode(encoded).decode('utf-8')
+    original_string = base64.b64decode(encoded).decode("utf-8")
 
     return egress(original_string)
+
 
 def is_file_param(string: str) -> bool:
     """Check if a string is a data URL."""
     regex = r"data:(.*?);name=(.*?);base64,(.*)"
     return re.match(regex, string) is not None
 
+
 def prompt_func_ingress(kwargs: dict) -> dict:
     """Ingress function for prompt functions."""
+
     # Get the prompt from the kwargs
     def conditional_trans(x):
         if is_file_param(x):
             return extract_string_from_data_url(x)
         else:
             return x
-        
+
     return {k: conditional_trans(v) for k, v in kwargs.items()}

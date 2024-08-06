@@ -30,13 +30,13 @@ space_info_store = mk_space_info_store(local_stores_dir)
 handlers = [
     dict(
         endpoint=space_info_store,
-        name='space_info',
-        attr_names=['__iter__', '__getitem__', '__setitem__'],
+        name="space_info",
+        attr_names=["__iter__", "__getitem__", "__setitem__"],
     ),
 ]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # from py2http import mk_app
     # app = mk_app(handlers, publish_openapi=True, publish_swagger=True)
     # app.run()

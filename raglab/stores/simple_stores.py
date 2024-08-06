@@ -19,11 +19,11 @@ def _set_store_kind(d: dict):
 
 
 space_store_factories = {
-    'user_preferences': mk_json_store,
-    'rjsf_forms': mk_json_store,
-    'datasets': mk_json_store,
-    'prompt_templates_text': mk_text_store,
-    'py_objects': mk_dill_store,
+    "user_preferences": mk_json_store,
+    "rjsf_forms": mk_json_store,
+    "datasets": mk_json_store,
+    "prompt_templates_text": mk_text_store,
+    "py_objects": mk_dill_store,
 }
 space_store_factories = _set_store_kind(space_store_factories)
 

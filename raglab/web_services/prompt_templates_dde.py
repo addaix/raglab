@@ -18,13 +18,13 @@ from ju import func_to_form_spec
 
 def mk_prompt_template_store(
     *,
-    space='prompt_tests',
-    store_kind='prompt_templates',
+    space="prompt_tests",
+    store_kind="prompt_templates",
     data_dir=data_dir,
     prepopulate_with_some_templates=True
 ):
-    txt_filt = filt_iter.suffixes('.txt')
-    txt = KeyCodecs.suffixed('.txt')
+    txt_filt = filt_iter.suffixes(".txt")
+    txt = KeyCodecs.suffixed(".txt")
     prompt_template_wrap = Pipe(txt_filt, txt)
 
     LocalPromptTemplates = Pipe(
@@ -84,29 +84,28 @@ class PromptDDE(StoreAccess):
         )
 
 
-
 prompt_template_dde = PromptDDE(mk_prompt_template_store())
 
 
 handlers = [
     {
-        'endpoint': prompt_template_dde,
-        'name': 'prompt_templates',
-        'attr_names': [
-            'list',
-            'read',
-            'write',
-            'delete',
-            'execute_prompt',
-            'execute_prompt_from_key',
-            'rjsf_json_of_prompt_template',
-            'rjsf_json_of_key'
+        "endpoint": prompt_template_dde,
+        "name": "prompt_templates",
+        "attr_names": [
+            "list",
+            "read",
+            "write",
+            "delete",
+            "execute_prompt",
+            "execute_prompt_from_key",
+            "rjsf_json_of_prompt_template",
+            "rjsf_json_of_key",
         ],
     }
 ]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from py2http import run_app
 
     run_app(handlers, publish_openapi=True, publish_swagger=True)

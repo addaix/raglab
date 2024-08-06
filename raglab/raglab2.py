@@ -59,7 +59,7 @@ from util import StoreAccess
 segmenter = partial(chunker, chk_size=1000, include_tail=True)
 
 DFLT_VECTORSTORES_PERSIST_ROOTDIR = get_configs_folder_for_app(
-    'srag', configs_name='vectorstores'
+    "srag", configs_name="vectorstores"
 )
 
 DFLT_PROMPT_TEMPLATE = """Answer the question based only on the following context:
@@ -74,11 +74,11 @@ DFLT_PROMPT = ChatPromptTemplate.from_template(DFLT_PROMPT_TEMPLATE)
 class Raglab2:
     def __init__(
         self,
-        vectorstore:VectorStore,
-        embedding:Embeddings,
-        prompt:PromptTemplate,
-        model:LLM, # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
-    ) :
+        vectorstore: VectorStore,
+        embedding: Embeddings,
+        prompt: PromptTemplate,
+        model: LLM,  # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
+    ):
         self.vectorstore = vectorstore
         self.embedding = embedding
         self.prompt = prompt
@@ -117,34 +117,35 @@ class Raglab2:
     @cached_property
     def chain(self):
         return (
-            {"context": self.retriever , "question": RunnablePassthrough()}
+            {"context": self.retriever, "question": RunnablePassthrough()}
             | self.prompt
             | self.model
             | StrOutputParser()
         )
 
     def ask(self, query: str):
-        return self.chain.invoke(query)     
+        return self.chain.invoke(query)
 
-class RaglabSession :
 
-    def __init__(self, app:Raglab2) :
+class RaglabSession:
+
+    def __init__(self, app: Raglab2):
         self.raglab_app = app
-    
-    def ask(self, query:str) :
+
+    def ask(self, query: str):
         return self.raglab_app.ask(quer)
 
 
-class RaglabSessionBuilder :
+class RaglabSessionBuilder:
 
     def build(
-        user:str,
-        name:str,
-        vectorstore:VectorStore,
-        embedding:Embeddings,
-        prompt:PromptTemplate,
-        model:LLM, # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
-    )-> RaglabSession :
+        user: str,
+        name: str,
+        vectorstore: VectorStore,
+        embedding: Embeddings,
+        prompt: PromptTemplate,
+        model: LLM,  # orca-mini-3b-gguf2-q4_0 all-MiniLM-L6-v2-f16.gguf orca-mini-3b-gguf2-q4_0.gguf mistral-7b-openorca.Q4_0.gguf
+    ) -> RaglabSession:
 
         raglab = Raglab2(vectorstore, embedding, prompt, model)
         session = RaglabSession(raglab)
@@ -152,15 +153,16 @@ class RaglabSessionBuilder :
 
         return session
 
-    def restore(user:str, name:str) -> RaglabSession:
+    def restore(user: str, name: str) -> RaglabSession:
         pass
+
 
 from langchain.docstore.document import Document
 from dol import wrap_kvs
 
 
 def _wrap_kv_in_langchain_document(k, v):
-    return Document(page_content=v, metadata={'key': k})
+    return Document(page_content=v, metadata={"key": k})
 
 
 def wrap_in_langchain_document(mapping: Mapping[str, str]):
@@ -170,6 +172,4 @@ def wrap_in_langchain_document(mapping: Mapping[str, str]):
 def object_resolver(module_dot_path, obj_name=None, *args, **kwargs):
     if obj_name is None:
         return partial(object_resolver, module_dot_path)
-    return import_object('.'.join([module_dot_path, obj_name]))
-
-
+    return import_object(".".join([module_dot_path, obj_name]))

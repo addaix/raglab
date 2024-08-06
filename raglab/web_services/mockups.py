@@ -27,13 +27,13 @@ def get_user_functions(module):
 
 
 datasets = {
-    'philosophy': {
+    "philosophy": {
         "statement_1": "Bob is a man",
         "statement_2": "Bob is a name",
         "statement_3": "Men are mortal",
         "statement_4": "1 + 1 = 2",
     },
-    'fruit': {
+    "fruit": {
         "apples": "Apples are red",
         "more_apples": "Apples are fruit",
         "good": "Fruit are good",
@@ -48,26 +48,26 @@ def dataset_list():
 
 
 stopwords = {
-    'is',
-    'are',
-    'a',
-    'an',
-    'the',
-    'on',
-    'in',
-    'at',
-    'for',
-    'to',
-    'of',
-    'and',
-    'or',
-    'not',
-    'no',
-    'yes',
-    'true',
-    'false',
-    'good',
-    'bad',
+    "is",
+    "are",
+    "a",
+    "an",
+    "the",
+    "on",
+    "in",
+    "at",
+    "for",
+    "to",
+    "of",
+    "and",
+    "or",
+    "not",
+    "no",
+    "yes",
+    "true",
+    "false",
+    "good",
+    "bad",
 }
 
 
@@ -90,10 +90,10 @@ def search_dataset(
     # stopwords: set = stopwords,
 ):
     """Searches the dataset given by dataset_name for content matching query"""
-    query_terms = map(lambda x: x.lower(), re.findall(r'\w+', query))
+    query_terms = map(lambda x: x.lower(), re.findall(r"\w+", query))
     query_terms = [x for x in query_terms if x not in stopwords]
     query_terms_pattern = re.compile(
-        '|'.join(f"({x})" for x in query_terms), re.IGNORECASE
+        "|".join(f"({x})" for x in query_terms), re.IGNORECASE
     )
 
     query_matches = lambda x: query_terms_pattern.search(x) is not None
@@ -119,7 +119,7 @@ _current_module = sys.modules[__name__]
 funcs = get_user_functions(_current_module)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from py2http import run_app
 
     run_app(funcs, publish_openapi=True, publish_swagger=True)

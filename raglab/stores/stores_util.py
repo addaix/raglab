@@ -20,9 +20,9 @@ from dol.util import not_a_mac_junk_path
 
 pjoin = os.path.join
 
-spaces_dirname = 'spaces'
-spaces_template = pjoin(spaces_dirname, '{space}')
-stores_template = pjoin('stores', '{store_kind}')
+spaces_dirname = "spaces"
+spaces_template = pjoin(spaces_dirname, "{space}")
+stores_template = pjoin("stores", "{store_kind}")
 space_stores_template = pjoin(spaces_template, stores_template)
 
 
@@ -34,8 +34,8 @@ def mk_space_info_store(rootdir):
     def _get_info_or_create_it(
         dir_where_info_is,
         *,
-        info_filename='info.json',
-        info_factory=lambda: {'kind': 'space_info'},
+        info_filename="info.json",
+        info_factory=lambda: {"kind": "space_info"},
     ):
         info_filepath = os.path.join(dir_where_info_is, info_filename)
         if not os.path.exists(info_filepath):
@@ -44,7 +44,7 @@ def mk_space_info_store(rootdir):
 
         return json.loads(Path(info_filepath).read_text())
 
-    space_dirpath = rootdir + f'/{spaces_dirname}'
+    space_dirpath = rootdir + f"/{spaces_dirname}"
     if not os.path.isdir(space_dirpath):
         os.makedirs(space_dirpath, exist_ok=True)
     s = wrap_kvs(
@@ -63,11 +63,11 @@ def mk_local_space_store(
     rootdir,
     space: str = None,
     *,
-    store_kind='miscellenous_stuff',
+    store_kind="miscellenous_stuff",
     rootdir_to_local_store: Callable = Files,
     rm_mac_junk=True,
-    filename_suffix: str = '',
-    filename_prefix: str = '',
+    filename_suffix: str = "",
+    filename_prefix: str = "",
     auto_make_dirs=True,
     key_autocomplete=True,
 ):
@@ -77,7 +77,7 @@ def mk_local_space_store(
     if space is None:
         # bind the rootdir, resulting in a function parametrized by space
         _input_kwargs = {
-            k: v for k, v in _input_kwargs.items() if k not in {'rootdir', 'space'}
+            k: v for k, v in _input_kwargs.items() if k not in {"rootdir", "space"}
         }
         return partial(mk_local_space_store, rootdir, **_input_kwargs)
     assert space is not None, f"space must be provided"
@@ -111,17 +111,17 @@ import dill
 from dol import TextFiles, JsonFiles, PickleFiles, wrap_kvs
 
 mk_text_store = partial(
-    mk_local_space_store, rootdir_to_local_store=TextFiles, filename_suffix='.txt'
+    mk_local_space_store, rootdir_to_local_store=TextFiles, filename_suffix=".txt"
 )
 mk_json_store = partial(
-    mk_local_space_store, rootdir_to_local_store=JsonFiles, filename_suffix='.json'
+    mk_local_space_store, rootdir_to_local_store=JsonFiles, filename_suffix=".json"
 )
 mk_pickle_store = partial(
-    mk_local_space_store, rootdir_to_local_store=PickleFiles, filename_suffix='.pkl'
+    mk_local_space_store, rootdir_to_local_store=PickleFiles, filename_suffix=".pkl"
 )
 
 # pickle is builtin, but fickle -- dill can serialize more things (lambdas, etc.)
 LocalDillStore = wrap_kvs(Files, data_of_obj=dill.dumps, obj_of_data=dill.loads)
 mk_dill_store = partial(
-    mk_local_space_store, rootdir_to_local_store=LocalDillStore, filename_suffix='.dill'
+    mk_local_space_store, rootdir_to_local_store=LocalDillStore, filename_suffix=".dill"
 )
