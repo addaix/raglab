@@ -8,7 +8,7 @@ from functools import partial
 from heapq import nlargest
 from importlib.resources import files
 from io import BytesIO
-from i2 import AttributeMapping
+from i2 import AttributeMutableMapping
 from langchain_openai import ChatOpenAI
 from meshed import DAG
 from msword import bytes_to_doc, get_text_from_docx

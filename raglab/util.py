@@ -60,11 +60,11 @@ class StoreAccess:
         del self.store[key]
 
 
-from i2 import call_forgivingly, AttributeMapping
+from i2 import call_forgivingly, AttributeMutableMapping
 from typing import Mapping, Callable
 
 
-class LazyAccessor(AttributeMapping):
+class LazyAccessor(AttributeMutableMapping):
     """A namespace of factories, with lazy instantiation.
 
     Give it a `Mapping` of factory functions, and it will call these factories to make

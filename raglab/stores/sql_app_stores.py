@@ -1,13 +1,13 @@
 """Definition of SQL app stores."""
 
 from functools import partial
-from i2 import Sig, AttributeMapping
+from i2 import Sig, AttributeMutableMapping
 from sqldol.base import SqlBaseKvReader
 from sqldol.stores import SqlDictReader, SqlDictStore
 
 from raglab.util import LazyAccessor
 
-store_factories = AttributeMapping(
+store_factories = AttributeMutableMapping(
     permissions=partial(
         SqlDictReader,
         table_name="app_permission",
