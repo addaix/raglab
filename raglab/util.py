@@ -4,7 +4,7 @@ from config2py import get_configs_folder_for_app
 from i2 import Pipe
 from msword.base import bytes_to_doc, get_text_from_docx
 import os
-from pdfdol.base import bytes_to_pdf_text_pages
+from pdfdol.base import pdf_bytes_to_text_pages  # old name: pdf_bytes_to_text_pages
 import re
 from types import SimpleNamespace
 
@@ -165,7 +165,7 @@ msword_to_string = Pipe(bytes_to_doc, get_text_from_docx)
 
 def pdf_to_string(x):
     """Converts a PDF to a string."""
-    return "".join(bytes_to_pdf_text_pages(x))
+    return "".join(pdf_bytes_to_text_pages(x))
 
 
 DFLT_FORMAT_EGRESS = {
@@ -173,7 +173,7 @@ DFLT_FORMAT_EGRESS = {
     "pdf": pdf_to_string,
     "msword": msword_to_string,
 }
-# note: see from pdfdol.base import bytes_to_pdf_text_pages
+# note: see from pdfdol.base import pdf_bytes_to_text_pages
 
 
 def extract_string_from_data_url(data_url, *, format_egress=DFLT_FORMAT_EGRESS):
