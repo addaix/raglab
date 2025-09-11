@@ -1,11 +1,33 @@
 """
 LangChain Vector Database Manager
 
-Unified tool for discovering, checking status, and installing vector databases
-that can be used with LangChain. Combines discovery and installation capabilities.
+A comprehensive tool for discovering, checking status, and installing vector databases
+that can be used with LangChain. This module provides both programmatic and command-line
+interfaces for managing vector database installations.
+
+Key Features:
+- Discover installed and available vector databases
+- Check installation status (packages, services, dependencies)
+- Generate installation instructions for missing components
+- Support for multiple databases with extensible configuration
+- Smart detection of already-installed packages with version info
+- OS-specific installation instructions
+
+Usage:
+    From Python:
+        from vectordb_manager import help_me_install, discover_vectordbs
+        help_me_install("qdrant")
+        
+    From command line:
+        python vectordb_manager.py                    # Show discovery report
+        python vectordb_manager.py qdrant            # Full installation for qdrant
+        python vectordb_manager.py qdrant status     # Check qdrant status
+        python vectordb_manager.py qdrant pip        # Show pip instructions
+        python vectordb_manager.py list              # List all databases
 """
 
 import importlib
+import importlib.metadata
 import platform
 import socket
 import sys
@@ -14,6 +36,12 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Callable, Any, Union, Tuple
 from enum import Enum
 from pathlib import Path
+
+try:
+    import argh
+    HAS_ARGH = True
+except ImportError:
+    HAS_ARGH = False
 
 try:
     import pyperclip
@@ -44,7 +72,26 @@ class VectorDbConfig:
     Complete configuration for a vector database including discovery and installation.
     
     This class combines functionality for checking status and generating installation
-    instructions for vector databases.
+    instructions for vector databases. Each database should have a unique name that
+    is a valid Python identifier (lowercase with underscores).
+    
+    Attributes:
+        name: Valid Python identifier for the database (e.g., 'qdrant', 'mongodb_atlas')
+        aliases: Alternative names that can be used to reference this database
+        langchain_module: Python module path for LangChain integration
+        pip_packages: List of pip packages required
+        system_dependencies: System-level dependencies (e.g., docker)
+        installation_url: URL to official installation documentation
+        documentation_url: URL to main documentation
+        setup_steps: OS-specific installation steps
+        environment_vars: Required environment variables
+        post_install_notes: Additional notes for users after installation
+        default_port: Default port number if applicable
+        default_host: Default host (usually localhost)
+        cloud_service: Whether this is primarily a cloud service
+        embedded_mode: Whether this supports embedded mode (no server needed)
+        service_check: Custom function to check if service is running
+        metadata_collector: Custom function to collect additional metadata
     """
     # Basic identification
     name: str  # Must be a valid Python identifier (e.g., 'qdrant', 'mongodb_atlas')
@@ -84,34 +131,37 @@ class VectorDbConfig:
         except ImportError:
             return False
     
-    def check_dependencies_installed(self) -> Tuple[bool, List[str], List[str]]:
+    def check_dependencies_installed(self) -> Tuple[bool, Dict[str, str], List[str]]:
         """
-        Check if Python dependencies are installed.
+        Check if Python dependencies are installed with version info.
         
         Returns:
-            Tuple of (all_met, installed_packages, missing_packages)
+            Tuple of (all_met, installed_versions, missing_packages)
+            installed_versions is a dict mapping package name to version string
         """
-        installed = []
+        installed_versions = {}
         missing = []
         
         for package in self.pip_packages:
             # Handle package names with extras like package[extra]
             base_package = package.split('[')[0]
-            # Convert package name to module name (e.g., faiss-cpu -> faiss)
-            module_name = base_package.replace('-', '_')
             
             try:
-                importlib.import_module(module_name)
-                installed.append(package)
-            except ImportError:
-                # Try without underscore conversion
+                # Try to get version information
+                version = importlib.metadata.version(base_package)
+                installed_versions[package] = version
+            except importlib.metadata.PackageNotFoundError:
+                # Try alternative module import for packages with different import names
+                module_name = base_package.replace('-', '_')
                 try:
-                    importlib.import_module(base_package)
-                    installed.append(package)
+                    mod = importlib.import_module(module_name)
+                    # Try to get version from module
+                    version = getattr(mod, '__version__', 'unknown')
+                    installed_versions[package] = version
                 except ImportError:
                     missing.append(package)
         
-        return (len(missing) == 0, installed, missing)
+        return (len(missing) == 0, installed_versions, missing)
     
     def check_service_running(self) -> Union[str, bool]:
         """
@@ -166,24 +216,35 @@ class VectorDbConfig:
         return metadata
     
     def print_pip_install(self) -> str:
-        """Generate pip install instructions."""
+        """Generate pip install instructions with version checking."""
         if not self.pip_packages:
             return "# No Python packages required"
         
-        deps_met, installed, missing = self.check_dependencies_installed()
+        deps_met, installed_versions, missing = self.check_dependencies_installed()
         
         lines = []
         if deps_met:
-            lines.append(f"# ✅ All Python packages already installed")
-            lines.append(f"# Installed: {', '.join(installed)}")
-            lines.append(f"# To update, run:")
+            lines.append(f"# ✅ All Python packages already installed for {self.name}")
+            lines.append("#")
+            lines.append("# Installed versions:")
+            for pkg, version in installed_versions.items():
+                lines.append(f"#   • {pkg}: {version}")
+            lines.append("#")
+            lines.append("# To update to latest versions, run:")
             lines.append(f"pip install -U {' '.join(self.pip_packages)}")
         else:
-            if installed:
-                lines.append(f"# ✅ Already installed: {', '.join(installed)}")
+            if installed_versions:
+                lines.append(f"# ✅ Already installed:")
+                for pkg, version in installed_versions.items():
+                    lines.append(f"#   • {pkg}: {version}")
+                lines.append("#")
             lines.append(f"# ❌ Missing packages: {', '.join(missing)}")
-            lines.append(f"# Install with:")
+            lines.append("#")
+            lines.append("# Install missing packages with:")
             lines.append(f"pip install {' '.join(missing)}")
+            lines.append("#")
+            lines.append("# Or install/update all packages with:")
+            lines.append(f"pip install -U {' '.join(self.pip_packages)}")
         
         return "\n".join(lines)
     
@@ -192,7 +253,7 @@ class VectorDbConfig:
         lines = []
         
         if not self.system_dependencies:
-            return "# No system dependencies required"
+            return f"# No system dependencies required for {self.name}"
         
         lines.append(f"# System dependencies for {self.name}")
         
@@ -246,6 +307,59 @@ class VectorDbConfig:
                 else:
                     lines.append(f"export {key}=\"{value}\"")
             lines.append("")
+        
+        return "\n".join(lines)
+    
+    def print_status(self) -> str:
+        """Print detailed status information for this database."""
+        lines = []
+        lines.append(f"Status for {self.name}")
+        lines.append("=" * 40)
+        
+        # LangChain module
+        langchain_ok = self.check_langchain_available()
+        lines.append(f"LangChain module: {'✅ Available' if langchain_ok else '❌ Not installed'}")
+        if self.langchain_module:
+            lines.append(f"  Module: {self.langchain_module}")
+        
+        # Dependencies
+        deps_met, installed_versions, missing = self.check_dependencies_installed()
+        if self.pip_packages:
+            if deps_met:
+                lines.append(f"Python packages: ✅ All installed")
+                for pkg, version in installed_versions.items():
+                    lines.append(f"  • {pkg}: {version}")
+            else:
+                lines.append(f"Python packages: ⚠️  Some missing")
+                if installed_versions:
+                    lines.append("  Installed:")
+                    for pkg, version in installed_versions.items():
+                        lines.append(f"    • {pkg}: {version}")
+                if missing:
+                    lines.append("  Missing:")
+                    for pkg in missing:
+                        lines.append(f"    • {pkg}")
+        
+        # Service status
+        service_uri = self.check_service_running()
+        if service_uri and isinstance(service_uri, str):
+            lines.append(f"Service: ✅ Running at {service_uri}")
+        else:
+            lines.append(f"Service: ❌ Not running")
+            if self.default_port:
+                lines.append(f"  Expected port: {self.default_port}")
+            if self.embedded_mode:
+                lines.append(f"  Note: Supports embedded mode (no server needed)")
+        
+        # Overall readiness
+        is_ready = langchain_ok and deps_met and (service_uri or self.embedded_mode)
+        lines.append(f"\nOverall: {'✅ Ready to use' if is_ready else '❌ Not ready'}")
+        
+        # URLs
+        if self.documentation_url:
+            lines.append(f"\nDocumentation: {self.documentation_url}")
+        if self.installation_url:
+            lines.append(f"Installation guide: {self.installation_url}")
         
         return "\n".join(lines)
     
@@ -333,7 +447,12 @@ class VectorDbConfig:
 
 
 class VectorDbRegistry:
-    """Registry for vector database configurations."""
+    """
+    Registry for vector database configurations.
+    
+    This class manages all registered vector database configurations and provides
+    methods to discover, query, and manage them.
+    """
     
     def __init__(self):
         self._configs: Dict[str, VectorDbConfig] = {}
@@ -699,10 +818,10 @@ class VectorDbRegistry:
             }
             
             # Check dependencies
-            deps_met, installed, missing = config.check_dependencies_installed()
+            deps_met, installed_versions, missing = config.check_dependencies_installed()
             status["dependencies"] = {
                 "all_met": deps_met,
-                "installed": installed,
+                "installed_versions": installed_versions,
                 "missing": missing
             }
             
@@ -900,47 +1019,116 @@ def print_discovery_report() -> None:
           f"{len(needs_service)} need service, {len(not_available)} not available")
 
 
-# Convenience functions for specific databases
-def install_qdrant(**kwargs) -> Optional[str]:
+# CLI functions for argh
+def vectordb_cli(
+    vectordb: Optional[str] = None,
+    command: Optional[str] = None
+) -> None:
     """
-    Generate installation instructions for Qdrant.
+    Vector database management CLI.
     
-    Example:
-        >>> instructions = install_qdrant(what="pip", print_instructions=False)  # doctest: +SKIP
-    """
-    return help_me_install("qdrant", **kwargs)
-
-
-def install_chroma(**kwargs) -> Optional[str]:
-    """
-    Generate installation instructions for Chroma.
+    Args:
+        vectordb: Name of the vector database (optional)
+        command: Command to execute (optional)
     
-    Example:
-        >>> instructions = install_chroma(what="launch", print_instructions=False)  # doctest: +SKIP
-    """
-    return help_me_install("chroma", **kwargs)
-
-
-def install_mongodb_atlas(**kwargs) -> Optional[str]:
-    """
-    Generate installation instructions for MongoDB Atlas.
+    Commands:
+        status: Show detailed status
+        pip: Show pip installation instructions
+        system: Show system dependencies
+        launch: Show service launch instructions
+        all: Show complete installation (default)
     
-    Example:
-        >>> instructions = install_mongodb_atlas(print_instructions=False)  # doctest: +SKIP
+    Examples:
+        python vectordb_manager.py              # Show discovery report
+        python vectordb_manager.py list         # List all databases
+        python vectordb_manager.py qdrant       # Full installation for qdrant
+        python vectordb_manager.py qdrant status    # Check qdrant status
+        python vectordb_manager.py qdrant pip       # Pip instructions for qdrant
+        python vectordb_manager.py qdrant launch    # Launch instructions
     """
-    return help_me_install("mongodb_atlas", **kwargs)
+    registry = VectorDbRegistry()
+    
+    # Special case: list command
+    if vectordb == "list":
+        print("Available vector databases:")
+        for name in registry.list_all():
+            config = registry.get(name)
+            aliases = f" (aliases: {', '.join(config.aliases)})" if config.aliases else ""
+            print(f"  • {name}{aliases}")
+        return
+    
+    # No vectordb specified - show discovery report
+    if not vectordb:
+        print_discovery_report()
+        print("\n" + "=" * 50)
+        print("Usage:")
+        print("  python vectordb_manager.py                 # Discovery report")
+        print("  python vectordb_manager.py list            # List all databases")
+        print("  python vectordb_manager.py <db>            # Full installation")
+        print("  python vectordb_manager.py <db> status     # Check status")
+        print("  python vectordb_manager.py <db> pip        # Python packages")
+        print("  python vectordb_manager.py <db> system     # System dependencies")
+        print("  python vectordb_manager.py <db> launch     # Launch service")
+        print("\nExamples:")
+        print("  python vectordb_manager.py qdrant")
+        print("  python vectordb_manager.py chroma status")
+        print("  python vectordb_manager.py mongodb_atlas pip")
+        return
+    
+    # Get the database config
+    config = registry.get(vectordb)
+    if not config:
+        print(f"❌ Unknown vector database: '{vectordb}'")
+        print(f"Available: {', '.join(registry.list_all())}")
+        print("\nTry: python vectordb_manager.py list")
+        return
+    
+    # Detect OS for instructions
+    os_type = _detect_os()
+    
+    # Execute command
+    if not command or command == "all":
+        # Default: show full installation
+        print(f"📦 Complete installation for {config.name}")
+        print("=" * 60)
+        print(config.print_full_installation(os_type))
+    elif command == "status":
+        print(config.print_status())
+    elif command == "pip":
+        print(f"📦 Python packages for {config.name}")
+        print("=" * 60)
+        print(config.print_pip_install())
+    elif command == "system":
+        print(f"📦 System dependencies for {config.name}")
+        print("=" * 60)
+        print(config.print_system_dependencies(os_type))
+    elif command == "launch":
+        print(f"📦 Launch service for {config.name}")
+        print("=" * 60)
+        print(config.print_launch_service(os_type))
+    else:
+        print(f"❌ Unknown command: '{command}'")
+        print("Valid commands: all, status, pip, system, launch")
+
+
+def main():
+    """Main entry point for CLI."""
+    if HAS_ARGH:
+        # Use argh for better CLI experience
+        import argh
+        argh.dispatch_command(vectordb_cli)
+    else:
+        # Fallback to simple sys.argv parsing
+        import sys
+        if len(sys.argv) == 1:
+            vectordb_cli()
+        elif len(sys.argv) == 2:
+            vectordb_cli(sys.argv[1])
+        elif len(sys.argv) == 3:
+            vectordb_cli(sys.argv[1], sys.argv[2])
+        else:
+            print("Usage: python vectordb_manager.py [database] [command]")
 
 
 if __name__ == "__main__":
-    import sys
-    
-    if len(sys.argv) > 1:
-        db_name = sys.argv[1]
-        what = sys.argv[2] if len(sys.argv) > 2 else "all"
-        help_me_install(db_name, what=what)
-    else:
-        # Show discovery report
-        print_discovery_report()
-        print("\n" + "=" * 50)
-        print("Usage: python vectordb_installer.py <database> [all|pip|system|launch]")
-        print("Example: python vectordb_installer.py qdrant pip")
+    main()

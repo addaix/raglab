@@ -48,6 +48,10 @@ def get_component(registry: MutableMapping, spec: Any, **kwargs) -> Any:
         if spec not in registry:
             raise KeyError(f"Component '{spec}' not found in registry")
         component = registry[spec]
+        # If the registered component is a class, instantiate it so callers
+        # get an instance (useful for embedder classes that provide __call__).
+        if isinstance(component, type):
+            return component(**kwargs) if kwargs else component()
         return component(**kwargs) if kwargs else component
 
     if isinstance(spec, dict):
@@ -58,6 +62,9 @@ def get_component(registry: MutableMapping, spec: Any, **kwargs) -> Any:
             raise KeyError(f"Component '{name}' not found in registry")
         component = registry[name]
         merged = {**params, **kwargs}
+        # Instantiate classes when specified by name; otherwise call functions
+        if isinstance(component, type):
+            return component(**merged) if merged else component()
         return component(**merged) if merged else component
 
     raise TypeError(f"Invalid component spec type: {type(spec)}")
