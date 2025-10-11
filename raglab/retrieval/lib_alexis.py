@@ -1,7 +1,7 @@
 """This module provides functions to retrieve documents from a corpus based on a query.
 There are also functions to read and write documents in different formats."""
 
-from config2py import config_getter, get_app_data_folder, process_path
+from config2py import config_getter, get_app_config_folder, process_path
 from dotenv import load_dotenv
 from dol import wrap_kvs, Pipe
 from functools import partial
@@ -32,6 +32,7 @@ import tiktoken
 from typing import Mapping, List, Optional, Any, Tuple, Callable
 import PyPDF2
 
+from tabled import extension_based_wrap  # keep! Imported elsewhere.
 
 DocKey = str
 
