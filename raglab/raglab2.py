@@ -27,7 +27,8 @@ raglab.ask("Who invented the light bulb and what is the process plants use to co
 
 """
 
-from typing import Optional, Callable, Mapping, Union
+from typing import Optional, Union
+from collections.abc import Callable, Mapping
 from functools import cached_property, partial
 import os
 import chromadb

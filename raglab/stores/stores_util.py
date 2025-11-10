@@ -1,6 +1,7 @@
 """Utils for stores"""
 
-from typing import Callable, Optional
+from typing import Optional
+from collections.abc import Callable
 import os
 from pathlib import Path
 import json

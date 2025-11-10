@@ -1,7 +1,8 @@
 """Main facade interface for vd_facade_1"""
 
 from dataclasses import dataclass, field
-from typing import Optional, Union, Mapping, Any
+from typing import Optional, Union, Any
+from collections.abc import Mapping
 
 from .registry import get_component, segmenters, embedders, vector_stores
 from .types import SegmentMapping, SegmentKey, Vector, VectorMapping
@@ -31,10 +32,10 @@ class VectorSearchEngine:
 
     def add_documents(
         self,
-        documents: Union[str, list[str], Mapping[str, str], SegmentMapping],
+        documents: str | list[str] | Mapping[str, str] | SegmentMapping,
         *,
-        segment: Optional[bool] = None,
-        embed: Optional[bool] = None,
+        segment: bool | None = None,
+        embed: bool | None = None,
     ):
         should_segment = segment if segment is not None else self.auto_segment
         should_embed = embed if embed is not None else self.auto_embed
@@ -55,7 +56,7 @@ class VectorSearchEngine:
         self._vector_store.add_batch(segments)
 
     def search(
-        self, query: Union[str, Vector], k: int = 5, return_segments: bool = True
+        self, query: str | Vector, k: int = 5, return_segments: bool = True
     ):
         results = self._vector_store.search(query, k)
         if return_segments and hasattr(self._vector_store, "segments"):

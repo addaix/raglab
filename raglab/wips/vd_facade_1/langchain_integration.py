@@ -101,7 +101,7 @@ def register_langchain_components():
                     # fall back to a simple local embedding implementation.
                     self.model = None
 
-            def __call__(self, segments: Union[dict, list]):
+            def __call__(self, segments: dict | list):
                 # Prepare texts
                 if isinstance(segments, dict):
                     keys = list(segments.keys())
@@ -179,11 +179,11 @@ if QDRANT_AVAILABLE:
 
         def __init__(
             self,
-            embedder: Optional[Any] = None,
-            host: Optional[str] = None,
-            port: Optional[int] = None,
-            collection_name: Optional[str] = None,
-            api_key: Optional[str] = None,
+            embedder: Any | None = None,
+            host: str | None = None,
+            port: int | None = None,
+            collection_name: str | None = None,
+            api_key: str | None = None,
         ):
             # allow env overrides
             host = host or os.getenv("VD_FACADE_QDRANT_HOST", "localhost")
@@ -214,7 +214,7 @@ if QDRANT_AVAILABLE:
                 # fallback: try creating empty store with from_documents later
                 self.store = None
 
-        def add_batch(self, segments: dict, vectors: Optional[dict] = None):
+        def add_batch(self, segments: dict, vectors: dict | None = None):
             # Convert segments to LangChain Documents
             docs = [
                 Document(page_content=text, metadata={"id": key})
@@ -278,7 +278,7 @@ if QDRANT_AVAILABLE:
                         "Failed to add documents to Qdrant store: %s" % e
                     )
 
-        def search(self, query: Union[str, list], k: int = 5):
+        def search(self, query: str | list, k: int = 5):
             if self.store is None:
                 return []
             if isinstance(query, str):

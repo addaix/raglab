@@ -10,7 +10,8 @@ import socket
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Callable, Any, Iterable
+from typing import Dict, List, Optional, Any
+from collections.abc import Callable, Iterable
 from pathlib import Path
 import os
 
@@ -23,9 +24,9 @@ class VectorDbStatus:
     langchain_available: bool = False
     dependencies_met: bool = False
     service_accessible: bool = False
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def is_ready(self) -> bool:
@@ -49,9 +50,9 @@ class VectorDbConfig:
 
     name: str
     langchain_module: str
-    dependencies: List[str] = field(default_factory=list)
-    service_check: Optional[Callable[[], bool]] = None
-    metadata_collector: Optional[Callable[[], Dict[str, Any]]] = None
+    dependencies: list[str] = field(default_factory=list)
+    service_check: Callable[[], bool] | None = None
+    metadata_collector: Callable[[], dict[str, Any]] | None = None
 
 
 class VectorDbDiscovery:
@@ -60,7 +61,7 @@ class VectorDbDiscovery:
     def __init__(self):
         self._configs = self._get_vectordb_configs()
 
-    def _get_vectordb_configs(self) -> List[VectorDbConfig]:
+    def _get_vectordb_configs(self) -> list[VectorDbConfig]:
         """Get configurations for all known LangChain vector databases."""
         return [
             # Local/Embedded Databases
@@ -149,7 +150,7 @@ class VectorDbDiscovery:
 
     def discover_available(
         self, *, check_services: bool = True
-    ) -> Dict[str, VectorDbStatus]:
+    ) -> dict[str, VectorDbStatus]:
         """
         Discover all available vector databases.
 
@@ -175,12 +176,12 @@ class VectorDbDiscovery:
 
     def get_ready_databases(
         self, *, check_services: bool = True
-    ) -> Dict[str, VectorDbStatus]:
+    ) -> dict[str, VectorDbStatus]:
         """Get only the databases that are ready to use."""
         all_dbs = self.discover_available(check_services=check_services)
         return {name: status for name, status in all_dbs.items() if status.is_ready}
 
-    def get_installable_databases(self) -> Dict[str, VectorDbStatus]:
+    def get_installable_databases(self) -> dict[str, VectorDbStatus]:
         """Get databases where LangChain integration exists but dependencies are missing."""
         all_dbs = self.discover_available(check_services=False)
         return {
@@ -279,7 +280,7 @@ class VectorDbDiscovery:
             return False
 
     # Metadata collectors
-    def _get_faiss_metadata(self) -> Dict[str, Any]:
+    def _get_faiss_metadata(self) -> dict[str, Any]:
         """Get FAISS-specific metadata."""
         metadata = {"type": "local", "gpu_support": False}
         try:
@@ -298,7 +299,7 @@ class VectorDbDiscovery:
             pass
         return metadata
 
-    def _get_chroma_metadata(self) -> Dict[str, Any]:
+    def _get_chroma_metadata(self) -> dict[str, Any]:
         """Get Chroma-specific metadata."""
         metadata = {"type": "local", "default_port": 8000}
         try:
@@ -311,7 +312,7 @@ class VectorDbDiscovery:
             pass
         return metadata
 
-    def _get_pinecone_metadata(self) -> Dict[str, Any]:
+    def _get_pinecone_metadata(self) -> dict[str, Any]:
         """Get Pinecone-specific metadata."""
         metadata = {"type": "cloud"}
         has_api_key = bool(os.getenv("PINECONE_API_KEY"))
@@ -320,7 +321,7 @@ class VectorDbDiscovery:
             metadata["setup_hint"] = "Set PINECONE_API_KEY environment variable"
         return metadata
 
-    def _get_weaviate_metadata(self) -> Dict[str, Any]:
+    def _get_weaviate_metadata(self) -> dict[str, Any]:
         """Get Weaviate-specific metadata."""
         return {
             "type": "hybrid",
@@ -348,7 +349,7 @@ class VectorDbDiscovery:
         )  # Cloud instance
 
 
-def print_discovery_results(results: Dict[str, VectorDbStatus]) -> None:
+def print_discovery_results(results: dict[str, VectorDbStatus]) -> None:
     """
     Print a formatted report of discovery results.
 
@@ -426,7 +427,7 @@ def print_discovery_results(results: Dict[str, VectorDbStatus]) -> None:
 # Main interface functions
 def get_available_vectordbs(
     *, check_services: bool = True
-) -> Dict[str, VectorDbStatus]:
+) -> dict[str, VectorDbStatus]:
     """
     Get all available vector databases with their status.
 
@@ -447,7 +448,7 @@ def get_available_vectordbs(
     return discovery.discover_available(check_services=check_services)
 
 
-def get_ready_vectordbs(*, check_services: bool = True) -> List[str]:
+def get_ready_vectordbs(*, check_services: bool = True) -> list[str]:
     """
     Get names of vector databases that are ready to use.
 

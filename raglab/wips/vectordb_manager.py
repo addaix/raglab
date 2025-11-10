@@ -33,7 +33,8 @@ import socket
 import sys
 import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Callable, Any, Union, Tuple
+from typing import Dict, List, Optional, Set, Any, Union, Tuple
+from collections.abc import Callable
 from enum import Enum
 from pathlib import Path
 
@@ -61,9 +62,9 @@ class OSType(Enum):
 class InstallStep:
     """Single installation step with description and commands."""
     description: str
-    commands: List[str]
+    commands: list[str]
     optional: bool = False
-    note: Optional[str] = None
+    note: str | None = None
 
 
 @dataclass
@@ -95,31 +96,31 @@ class VectorDbConfig:
     """
     # Basic identification
     name: str  # Must be a valid Python identifier (e.g., 'qdrant', 'mongodb_atlas')
-    aliases: Set[str] = field(default_factory=set)  # Alternative names
+    aliases: set[str] = field(default_factory=set)  # Alternative names
     
     # LangChain integration
     langchain_module: str = ""
-    pip_packages: List[str] = field(default_factory=list)
-    system_dependencies: List[str] = field(default_factory=list)
+    pip_packages: list[str] = field(default_factory=list)
+    system_dependencies: list[str] = field(default_factory=list)
     
     # URLs and documentation
     installation_url: str = ""
     documentation_url: str = ""
     
     # Installation steps by OS
-    setup_steps: Dict[OSType, List[InstallStep]] = field(default_factory=dict)
-    environment_vars: Dict[str, str] = field(default_factory=dict)
-    post_install_notes: List[str] = field(default_factory=list)
+    setup_steps: dict[OSType, list[InstallStep]] = field(default_factory=dict)
+    environment_vars: dict[str, str] = field(default_factory=dict)
+    post_install_notes: list[str] = field(default_factory=list)
     
     # Service configuration
-    default_port: Optional[int] = None
+    default_port: int | None = None
     default_host: str = "localhost"
     cloud_service: bool = False
     embedded_mode: bool = False
     
     # Custom check functions
-    service_check: Optional[Callable[[], Union[str, bool]]] = None
-    metadata_collector: Optional[Callable[[], Dict[str, Any]]] = None
+    service_check: Callable[[], str | bool] | None = None
+    metadata_collector: Callable[[], dict[str, Any]] | None = None
     
     def check_langchain_available(self) -> bool:
         """Check if the LangChain integration module is available."""
@@ -131,7 +132,7 @@ class VectorDbConfig:
         except ImportError:
             return False
     
-    def check_dependencies_installed(self) -> Tuple[bool, Dict[str, str], List[str]]:
+    def check_dependencies_installed(self) -> tuple[bool, dict[str, str], list[str]]:
         """
         Check if Python dependencies are installed with version info.
         
@@ -163,7 +164,7 @@ class VectorDbConfig:
         
         return (len(missing) == 0, installed_versions, missing)
     
-    def check_service_running(self) -> Union[str, bool]:
+    def check_service_running(self) -> str | bool:
         """
         Check if the vector database service is running.
         
@@ -196,7 +197,7 @@ class VectorDbConfig:
         
         return False
     
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """Collect metadata about the current installation."""
         metadata = {
             "type": "cloud" if self.cloud_service else "local",
@@ -455,7 +456,7 @@ class VectorDbRegistry:
     """
     
     def __init__(self):
-        self._configs: Dict[str, VectorDbConfig] = {}
+        self._configs: dict[str, VectorDbConfig] = {}
         self._register_defaults()
     
     def _register_defaults(self) -> None:
@@ -770,7 +771,7 @@ class VectorDbRegistry:
         
         self._configs[config.name] = config
     
-    def get(self, name: str) -> Optional[VectorDbConfig]:
+    def get(self, name: str) -> VectorDbConfig | None:
         """
         Get configuration by name or alias.
         
@@ -796,11 +797,11 @@ class VectorDbRegistry:
         
         return None
     
-    def list_all(self) -> List[str]:
+    def list_all(self) -> list[str]:
         """List all registered vector database names."""
         return list(self._configs.keys())
     
-    def discover_status(self) -> Dict[str, Dict[str, Any]]:
+    def discover_status(self) -> dict[str, dict[str, Any]]:
         """
         Discover status of all registered vector databases.
         
@@ -858,12 +859,12 @@ def _detect_os() -> OSType:
 
 
 def help_me_install(
-    vectordb: Optional[str] = None,
+    vectordb: str | None = None,
     *,
     what: str = "all",  # "all", "pip", "system", "launch"
     copy_to_clipboard: bool = True,
     print_instructions: bool = True
-) -> Optional[str]:
+) -> str | None:
     """
     Generate installation instructions for a vector database.
     
@@ -941,7 +942,7 @@ def help_me_install(
     return instructions
 
 
-def discover_vectordbs(*, detailed: bool = False) -> Dict[str, Dict[str, Any]]:
+def discover_vectordbs(*, detailed: bool = False) -> dict[str, dict[str, Any]]:
     """
     Discover status of all vector databases.
     
@@ -1021,8 +1022,8 @@ def print_discovery_report() -> None:
 
 # CLI functions for argh
 def vectordb_cli(
-    vectordb: Optional[str] = None,
-    command: Optional[str] = None
+    vectordb: str | None = None,
+    command: str | None = None
 ) -> None:
     """
     Vector database management CLI.

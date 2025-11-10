@@ -1,7 +1,8 @@
 """Webservices for store access"""
 
 from functools import lru_cache
-from typing import Any, MutableMapping
+from typing import Any
+from collections.abc import MutableMapping
 from dol import wrap_kvs
 from raglab.stores.simple_stores import mk_user_mall
 from raglab.util import StoreAccess

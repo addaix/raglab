@@ -33,7 +33,7 @@ class IterableNamespace(SimpleNamespace):
         raise AttributeError("can't set attribute")
 
 
-from typing import MutableMapping
+from collections.abc import MutableMapping
 
 
 class StoreAccess:
@@ -61,7 +61,7 @@ class StoreAccess:
 
 
 from i2 import call_forgivingly, AttributeMutableMapping
-from typing import Mapping, Callable
+from collections.abc import Mapping, Callable
 
 
 class LazyAccessor(AttributeMutableMapping):

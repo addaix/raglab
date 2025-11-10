@@ -55,14 +55,14 @@ def set_from_text_maj(txt):
 
 
 def set_from_text(txt):
-    return set([i.lower() for i in set_from_text_maj(txt)])
+    return {i.lower() for i in set_from_text_maj(txt)}
 
 
 def matching_keywords(text, keywords_set):
     lower_mapping = {i.lower(): i for i in keywords_set}
     text_set = set_from_text(text)
     intersection = text_set.intersection(lower_mapping)
-    return set([lower_mapping[i] for i in intersection])
+    return {lower_mapping[i] for i in intersection}
 
 
 # --------------------- Building the DAG ---------------------

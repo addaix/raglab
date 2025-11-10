@@ -1,7 +1,8 @@
 """VectorDB"""
 
 # VectorDB class
-from typing import Mapping, Iterable, Dict, Any
+from typing import Dict, Any
+from collections.abc import Mapping, Iterable
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -11,14 +12,15 @@ DocKey = str
 DocValue = str
 
 
-from typing import Tuple, List, Mapping
+from typing import Tuple, List
+from collections.abc import Mapping
 
-SegmentKey = Tuple[DocKey, int, int]
+SegmentKey = tuple[DocKey, int, int]
 
 
 def generate_split_keys(
-    docs: dict, text_splitter: RecursiveCharacterTextSplitter, metadatas: List[dict]
-) -> List[Tuple[str, int, int]]:
+    docs: dict, text_splitter: RecursiveCharacterTextSplitter, metadatas: list[dict]
+) -> list[tuple[str, int, int]]:
 
     documents = text_splitter.create_documents(
         list(docs.values()), metadatas=list({"document_name": k} for k in docs.keys())
@@ -37,7 +39,7 @@ def generate_split_keys(
 class SegmentMapping:
     """A class to represent a mapping between segments and documents."""
 
-    def __init__(self, docs: Mapping, segment_keys: List[SegmentKey]):
+    def __init__(self, docs: Mapping, segment_keys: list[SegmentKey]):
         self.docs = docs
         self.segment_keys = segment_keys
         self.document_keys = list(docs.keys())
@@ -48,7 +50,7 @@ class SegmentMapping:
     def __getitem__(self, key: SegmentKey):
         if isinstance(key, str):
             return self.docs[key]
-        elif isinstance(key, Tuple):
+        elif isinstance(key, tuple):
             doc_key, start_idx, end_idx = key
             return self.docs[doc_key][start_idx:end_idx]
         else:
@@ -79,7 +81,7 @@ class SegmentMapping:
     def __contains__(self, key: SegmentKey):
         if isinstance(key, str):
             return key in self.document_keys
-        elif isinstance(key, Tuple):
+        elif isinstance(key, tuple):
             return key in self.segment_keys
         else:
             raise TypeError("Key must be a string or a tuple")

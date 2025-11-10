@@ -29,7 +29,8 @@ from langdetect.lang_detect_exception import LangDetectException
 import pickle
 import re
 import tiktoken
-from typing import Mapping, List, Optional, Any, Tuple, Callable
+from typing import List, Optional, Any, Tuple
+from collections.abc import Mapping, Callable
 import PyPDF2
 
 from tabled import extension_based_wrap  # keep! Imported elsewhere.
@@ -120,8 +121,8 @@ def generate_split_keys(
     docs: Mapping[DocKey, str],
     chunk_size: int,
     chunk_overlap: int,
-    separators: Optional[List[str]] = None,
-) -> List[Tuple[str, int, int]]:
+    separators: list[str] | None = None,
+) -> list[tuple[str, int, int]]:
     segment_keys = []
     for doc_key, doc_text in docs.items():
         split_indices = split_text(doc_text, chunk_size, separators)
@@ -144,20 +145,20 @@ _generate_split_keys = partial(generate_split_keys, chunk_overlap=100)
 def segment_keys(
     documents: Mapping[DocKey, str],
     chunker: Callable[
-        [Mapping[DocKey, str], int], List[Tuple[str, int, int]]
+        [Mapping[DocKey, str], int], list[tuple[str, int, int]]
     ] = _generate_split_keys,
     max_chunk_size: int = 1000,
-) -> List[Tuple[str, int, int]]:
+) -> list[tuple[str, int, int]]:
     return chunker(documents, max_chunk_size)
 
 
 def doc_embeddings(
     documents: Mapping[DocKey, str],
-    segment_keys: List[Tuple[str, int, int]],
+    segment_keys: list[tuple[str, int, int]],
     embedding_function: Callable[
-        [List[str]], List[np.ndarray]
+        [list[str]], list[np.ndarray]
     ] = embeddings_model.embed_documents,
-) -> Mapping[Tuple[str, int, int], np.ndarray]:
+) -> Mapping[tuple[str, int, int], np.ndarray]:
     return dict(
         zip(
             segment_keys,
@@ -169,7 +170,7 @@ def doc_embeddings(
 
 
 def dump_embeddings(
-    doc_embeddings: Mapping[Tuple[str, int, int], np.ndarray], path: str
+    doc_embeddings: Mapping[tuple[str, int, int], np.ndarray], path: str
 ):
     """TODO : Save the embeddings to a file"""
     pass
@@ -177,10 +178,10 @@ def dump_embeddings(
 
 def top_k_segments(
     query_embedding: np.ndarray,
-    doc_embeddings: Mapping[Tuple[str, int, int], np.ndarray],
+    doc_embeddings: Mapping[tuple[str, int, int], np.ndarray],
     k: int = 1,
     distance_metric: Callable[[np.ndarray, np.ndarray], float] = cosine_similarity,
-) -> List[Tuple[str, int, int]]:
+) -> list[tuple[str, int, int]]:
     """Return the top k segments based on the distance metric between the query embedding and the document embeddings."""
     top_k = nlargest(
         k,
@@ -204,7 +205,7 @@ def query(user_query: str, process_function: Callable[[str], str] = lambda x: x)
 def query_answer(
     query: str,
     documents: Mapping[DocKey, str],
-    top_k_segments: List[Tuple[str, int, int]],
+    top_k_segments: list[tuple[str, int, int]],
     prompt_template: str = "Answer question {query} using the following documents: {documents}",
     chat_model=chat,
 ) -> str:
@@ -261,7 +262,7 @@ def num_tokens(string: str, encoding_name: str = "cl100k_base") -> int:
     return num_tokens
 
 
-def tokens(string: str, encoding_name: str = "cl100k_base") -> List[str]:
+def tokens(string: str, encoding_name: str = "cl100k_base") -> list[str]:
     """Return the tokens of a string encoded with a given encoding."""
     encoding = tiktoken.get_encoding(encoding_name)
     return encoding.encode(string)

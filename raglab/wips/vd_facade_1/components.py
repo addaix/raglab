@@ -1,6 +1,7 @@
 """Built-in components for vd_facade_1 (simplified)."""
 
-from typing import Union, Mapping, Sequence, Iterable, Optional
+from typing import Union, Optional
+from collections.abc import Mapping, Sequence, Iterable
 from collections.abc import Mapping as MappingABC
 from math import sqrt
 
@@ -29,7 +30,7 @@ def _cosine(a: Sequence[float], b: Sequence[float]) -> float:
 
 
 @register_embedder("simple_count")
-def simple_count_embedder(segments: Union[SegmentMapping, Iterable[str]]):
+def simple_count_embedder(segments: SegmentMapping | Iterable[str]):
     """Return very small embeddings: [len(text), unique_chars]"""
     if isinstance(segments, MappingABC):
         return {k: [len(v), len(set(v))] for k, v in segments.items()}
@@ -47,7 +48,7 @@ class MemoryVectorStore:
         self.embedder = embedder
 
     def add_batch(
-        self, segments: SegmentMapping, vectors: Optional[VectorMapping] = None
+        self, segments: SegmentMapping, vectors: VectorMapping | None = None
     ):
         self.segments.update(segments)
         if vectors is not None:
@@ -62,7 +63,7 @@ class MemoryVectorStore:
                     self.vectors[k] = v
 
     def search(
-        self, query: Union[str, Vector], k: int = 5
+        self, query: str | Vector, k: int = 5
     ) -> list[tuple[SegmentKey, float]]:
         if not self.vectors:
             return []

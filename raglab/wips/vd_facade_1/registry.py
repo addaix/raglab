@@ -1,6 +1,7 @@
 """Component registry management for vd_facade_1"""
 
-from typing import Callable, Any, Optional, MutableMapping
+from typing import Any, Optional
+from collections.abc import Callable, MutableMapping
 from functools import partial
 
 # Component registries - global dictionaries for each component type
@@ -10,7 +11,7 @@ vector_stores: MutableMapping[str, Callable[..., Any]] = {}  # Factories
 indexers: MutableMapping[str, Callable[..., Any]] = {}  # Factories
 
 
-def register_component(registry: MutableMapping, name: Optional[str] = None):
+def register_component(registry: MutableMapping, name: str | None = None):
     """Generic component registration decorator"""
 
     def decorator(component: Callable):
