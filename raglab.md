@@ -1,4 +1,4 @@
-> built 2026-10-20 12:20 UTC from 035b8ea (main) · raglab 0.2.11. Details: build_info.json
+> built 2026-11-21 15:15 UTC from 27a8742 (main) · raglab 0.2.12. Details: build_info.json
 
 # index.html.md
 
@@ -276,15 +276,15 @@ all six role Protocols, the no-LLM defaults, the LLM Formulator + Evaluator, and
 the RRF cross-source fan-in reranker. The roles, value types, and loop are
 stable; richer strategies are added behind the same contracts.
 
-The living roadmap is **[issue #2](https://github.com/thorwhalen/raglab/issues/2)**
+The living roadmap is **[issue #2](https://github.com/addaix/raglab/issues/2)**
 (Composable Search Agent on ir, the *ir_09* reference design). Not yet built:
 
 - **Budget governor refinements** — the per-task results cap currently truncates
   in arrival order rather than by rank
-  ([#5](https://github.com/thorwhalen/raglab/issues/5)); termination as a
+  ([#5](https://github.com/addaix/raglab/issues/5)); termination as a
   separately injected policy is planned.
 - **PurposeStore** — persistent, purpose-indexed memory overlay
-  ([#6](https://github.com/thorwhalen/raglab/issues/6)). There is no cross-run
+  ([#6](https://github.com/addaix/raglab/issues/6)). There is no cross-run
   memory today.
 - **`MultiAgentAgent`** — one subagent per sub-task/source (breadth-first, ~15×
   cost); promotion swaps only the orchestrator, keeping role contracts identical.
@@ -2047,40 +2047,38 @@ Label `corpus` for each of `facets` with a graded judge; see the module.
 
 # About this build
 
-This documentation was built on **2026-10-20 12:20 UTC** from commit <a href="https://github.com/thorwhalen/raglab/commit/035b8eaf4cb008ff4d3895db9e6e5067359d4485"><code>035b8ea</code></a> on branch <code>main</code>, for **raglab 0.2.11** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-21 15:15 UTC** from commit <a href="https://github.com/addaix/raglab/commit/27a874262849aca06f52e1b635481e6be82d91a1"><code>27a8742</code></a> on branch <code>main</code>, for **raglab 0.2.12** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.2.11) is behind the latest release on PyPI (0.2.12): `pip install raglab` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
-|                     |                                                                                                                                                          |
-|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/raglab/commit/035b8eaf4cb008ff4d3895db9e6e5067359d4485"><code>035b8eaf4cb008ff4d3895db9e6e5067359d4485</code></a> |
-| Branch              | <code>main</code>                                                                                                                                        |
-| Tags at this commit | none                                                                                                                                                     |
-| Working tree        | clean                                                                                                                                                    |
-| Remote              | <code>https://github.com/thorwhalen/raglab</code>                                                                                                        |
+|                     |                                                                                                                                                      |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Commit              | <a href="https://github.com/addaix/raglab/commit/27a874262849aca06f52e1b635481e6be82d91a1"><code>27a874262849aca06f52e1b635481e6be82d91a1</code></a> |
+| Branch              | <code>main</code>                                                                                                                                    |
+| Tags at this commit | none                                                                                                                                                 |
+| Working tree        | clean                                                                                                                                                |
+| Remote              | <code>https://github.com/addaix/raglab</code>                                                                                                        |
 
 ## Continuous integration
 
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
-| Repository   | <code>thorwhalen/raglab</code>                                                             |
-| Run          | <a href="https://github.com/thorwhalen/raglab/actions/runs/39421287321">39421287321</a>    |
+| Repository   | <code>addaix/raglab</code>                                                                 |
+| Run          | <a href="https://github.com/addaix/raglab/actions/runs/44918103790">44918103790</a>        |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>035b8eaf4cb008ff4d3895db9e6e5067359d4485</code> (in the history of the built commit) |
+| Event commit | <code>27a874262849aca06f52e1b635481e6be82d91a1</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.20  |
+| epythet  | 0.2.22  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -2096,14 +2094,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/raglab/0.2.12/">0.2.12</a>, newer than the documented version (0.2.11).
+Latest release: <a href="https://pypi.org/project/raglab/0.2.12/">0.2.12</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
-git clone https://github.com/thorwhalen/raglab && cd raglab
-git checkout 035b8eaf4cb008ff4d3895db9e6e5067359d4485
-pip install "epythet==0.2.20"
+git clone https://github.com/addaix/raglab && cd raglab
+git checkout 27a874262849aca06f52e1b635481e6be82d91a1
+pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 
@@ -2124,16 +2122,16 @@ machine-readable copies of this documentation.
 
 Files agents read before working in this repository.
 
-- [`.claude/CLAUDE.md`](https://github.com/thorwhalen/raglab/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
+- [`.claude/CLAUDE.md`](https://github.com/addaix/raglab/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
 
 ## Machine-readable documentation
 
 This site publishes the same documentation in forms that fit an agent’s context window:
 
-- [`llms.txt`](https://thorwhalen.github.io/raglab/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
-- [`raglab.md`](https://thorwhalen.github.io/raglab/raglab.md): the whole documentation as one Markdown file
+- [`llms.txt`](https://addaix.github.io/raglab/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
+- [`raglab.md`](https://addaix.github.io/raglab/raglab.md): the whole documentation as one Markdown file
 - `<page>.html.md`: a rendered Markdown twin of every page, advertised from each page’s `<head>` with `<link rel="alternate" type="text/markdown">`
-- [`objects.inv`](https://thorwhalen.github.io/raglab/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
+- [`objects.inv`](https://addaix.github.io/raglab/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
 
 
 # api.html.md

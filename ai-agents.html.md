@@ -10,13 +10,13 @@ machine-readable copies of this documentation.
 
 Files agents read before working in this repository.
 
-- [`.claude/CLAUDE.md`](https://github.com/thorwhalen/raglab/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
+- [`.claude/CLAUDE.md`](https://github.com/addaix/raglab/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
 
 ## Machine-readable documentation
 
 This site publishes the same documentation in forms that fit an agent’s context window:
 
-- [`llms.txt`](https://thorwhalen.github.io/raglab/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
-- [`raglab.md`](https://thorwhalen.github.io/raglab/raglab.md): the whole documentation as one Markdown file
+- [`llms.txt`](https://addaix.github.io/raglab/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
+- [`raglab.md`](https://addaix.github.io/raglab/raglab.md): the whole documentation as one Markdown file
 - `<page>.html.md`: a rendered Markdown twin of every page, advertised from each page’s `<head>` with `<link rel="alternate" type="text/markdown">`
-- [`objects.inv`](https://thorwhalen.github.io/raglab/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
+- [`objects.inv`](https://addaix.github.io/raglab/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
