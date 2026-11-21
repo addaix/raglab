@@ -40,11 +40,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://thorwhalen.github.io/raglab/"
-Repository = "https://github.com/thorwhalen/raglab"
-Documentation = "https://thorwhalen.github.io/raglab"
-Issues = "https://github.com/thorwhalen/raglab/issues"
-Changelog = "https://github.com/thorwhalen/raglab/blob/main/CHANGELOG.md"
+Homepage = "https://addaix.github.io/raglab/"
+Repository = "https://github.com/addaix/raglab"
+Documentation = "https://addaix.github.io/raglab"
+Issues = "https://github.com/addaix/raglab/issues"
+Changelog = "https://github.com/addaix/raglab/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 llm = [
