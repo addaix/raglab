@@ -269,15 +269,15 @@ all six role Protocols, the no-LLM defaults, the LLM Formulator + Evaluator, and
 the RRF cross-source fan-in reranker. The roles, value types, and loop are
 stable; richer strategies are added behind the same contracts.
 
-The living roadmap is **[issue #2](https://github.com/thorwhalen/raglab/issues/2)**
+The living roadmap is **[issue #2](https://github.com/addaix/raglab/issues/2)**
 (Composable Search Agent on ir, the *ir_09* reference design). Not yet built:
 
 - **Budget governor refinements** — the per-task results cap currently truncates
   in arrival order rather than by rank
-  ([#5](https://github.com/thorwhalen/raglab/issues/5)); termination as a
+  ([#5](https://github.com/addaix/raglab/issues/5)); termination as a
   separately injected policy is planned.
 - **PurposeStore** — persistent, purpose-indexed memory overlay
-  ([#6](https://github.com/thorwhalen/raglab/issues/6)). There is no cross-run
+  ([#6](https://github.com/addaix/raglab/issues/6)). There is no cross-run
   memory today.
 - **`MultiAgentAgent`** — one subagent per sub-task/source (breadth-first, ~15×
   cost); promotion swaps only the orchestrator, keeping role contracts identical.
