@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-21T15:15:45Z",
+  "built_at": "2026-11-22T14:38:26Z",
   "package": {
     "name": "raglab",
     "version": "0.2.12",
@@ -9,28 +9,28 @@
   },
   "git": {
     "available": true,
-    "commit": "27a874262849aca06f52e1b635481e6be82d91a1",
-    "short_commit": "27a8742",
+    "commit": "b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
+    "short_commit": "b6470a6",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/addaix/raglab",
-    "commit_url": "https://github.com/addaix/raglab/commit/27a874262849aca06f52e1b635481e6be82d91a1",
+    "commit_url": "https://github.com/addaix/raglab/commit/b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "addaix/raglab",
-    "sha": "27a874262849aca06f52e1b635481e6be82d91a1",
+    "sha": "b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "44918103790",
-    "run_url": "https://github.com/addaix/raglab/actions/runs/44918103790",
+    "run_id": "45033807995",
+    "run_url": "https://github.com/addaix/raglab/actions/runs/45033807995",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.22",
+    "epythet": "0.2.23",
     "sphinx": "9.1.1",
     "docutils": "0.22.4",
     "python": "3.12.16"
@@ -64,7 +64,7 @@
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout 27a874262849aca06f52e1b635481e6be82d91a1\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout b6470a61f41ebe06c6a72903fe3a14037b9fadf0\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,

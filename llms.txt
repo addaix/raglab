@@ -16,7 +16,7 @@
 - [raglab.recipes](_autosummary/raglab.recipes.html.md): Recipes: whole workflows composed from raglab’s roles, ready to call.
 - [raglab.recipes.corpus_labeling](_autosummary/raglab.recipes.corpus_labeling.html.md): Label a corpus against a topic, facet by facet, with a graded judge (raglab#8, part B).
 - [For AI agents](ai-agents.html.md): &#96;raglab&#96; ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-11-21 15:15 UTC&#42;&#42; from commit &lt;a href="https://github.com/add...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-11-22 14:38 UTC&#42;&#42; from commit &lt;a href="https://github.com/add...
 
 ## Optional
 
