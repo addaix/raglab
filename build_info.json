@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-22T14:38:26Z",
+  "built_at": "2026-11-23T06:10:16Z",
   "package": {
     "name": "raglab",
     "version": "0.2.12",
@@ -9,24 +9,24 @@
   },
   "git": {
     "available": true,
-    "commit": "b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
-    "short_commit": "b6470a6",
+    "commit": "2de882861c5b6db8b3128b48593cdae2d1c1d07c",
+    "short_commit": "2de8828",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/addaix/raglab",
-    "commit_url": "https://github.com/addaix/raglab/commit/b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
+    "commit_url": "https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "addaix/raglab",
-    "sha": "b6470a61f41ebe06c6a72903fe3a14037b9fadf0",
+    "sha": "2de882861c5b6db8b3128b48593cdae2d1c1d07c",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "45033807995",
-    "run_url": "https://github.com/addaix/raglab/actions/runs/45033807995",
+    "run_id": "45122170170",
+    "run_url": "https://github.com/addaix/raglab/actions/runs/45122170170",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.2.12",
-    "relation": "same",
+    "latest": "0.2.13",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout b6470a61f41ebe06c6a72903fe3a14037b9fadf0\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout 2de882861c5b6db8b3128b48593cdae2d1c1d07c\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.2.12) is behind the latest release on PyPI (0.2.13): `pip install raglab` gives newer code than these docs describe."
+    ]
   }
 }

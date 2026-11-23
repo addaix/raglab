@@ -338,12 +338,7 @@
 <section id="raglab">
 <h1>raglab<a class="headerlink" href="#raglab" title="Link to this heading">#</a></h1>
 <p>The <strong>agentic-search / RAG orchestration layer on top of <a class="reference external" href="https://github.com/i2mint/ir"><code class="docutils literal notranslate"><span class="pre">ir</span></code></a></strong> (the retrieval substrate).</p>
-<p><code class="docutils literal notranslate"><span class="pre">raglab</span></code> turns a retrieval substrate into a <strong>Composable Search Agent</strong>: a small
-set of injected <strong>roles</strong> — Planner, Formulator, Retriever, Evaluator, Reranker,
-Citer — wired by a control loop. The loop’s defining feature is the <strong>back-edge</strong>
-(<em>evaluator → reformulate</em>): when results aren’t good enough, the agent rewrites
-the query and searches again. That back-edge is what makes it an <em>agent</em> rather
-than a fixed pipeline (DAG).</p>
+<p><code class="docutils literal notranslate"><span class="pre">raglab</span></code> turns a retrieval substrate into a <strong>Composable Search Agent</strong>: a small set of injected <strong>roles</strong> — Planner, Formulator, Retriever, Evaluator, Reranker, Citer — wired by a control loop. The loop’s defining feature is the <strong>back-edge</strong> (<em>evaluator → reformulate</em>): when results aren’t good enough, the agent rewrites the query and searches again. That back-edge is what makes it an <em>agent</em> rather than a fixed pipeline (DAG).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>raglab
 </pre></div>
 </div>
@@ -357,9 +352,8 @@ agent layer.</p>
 <hr class="docutils" />
 <section id="quick-start">
 <h2>Quick start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
-<p>The default agent runs <strong>fully offline</strong> — no LLM, no network. Point it at one or
-more <code class="docutils literal notranslate"><span class="pre">ir</span></code> corpora and call it like a function; you get back ranked
-<a class="reference external" href="https://github.com/i2mint/ir"><code class="docutils literal notranslate"><span class="pre">ir.SearchHit</span></code></a>s.</p>
+<p>The default agent runs <strong>fully offline</strong> — no LLM, no network. Point it at one or more <code class="docutils literal notranslate"><span class="pre">ir</span></code> corpora and call it like a function; you get back ranked <a class="reference external" href="https://github.com/i2mint/ir"><code class="docutils literal notranslate"><span class="pre">ir.SearchHit</span></code></a>s.</p>
+<!-- wads-docs: skip needs registered ir corpora and an LLM key -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ir</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">raglab</span>
 
@@ -390,10 +384,7 @@ more <code class="docutils literal notranslate"><span class="pre">ir</span></cod
 <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">artifact_id</span>  <span class="c1"># -&gt; "deploy"</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">sources</span></code> is any <code class="docutils literal notranslate"><span class="pre">Mapping[name,</span> <span class="pre">Retriever]</span></code>. Build it with
-<a class="reference internal" href="#sources"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">raglab.ir_sources(*names,</span> <span class="pre">**defaults)</span></code></span></a>, with <code class="docutils literal notranslate"><span class="pre">ir.retrievers()</span></code> (a
-lazy live view over everything ir has registered), or by hand:
-<code class="docutils literal notranslate"><span class="pre">{&quot;skills&quot;:</span> <span class="pre">ir.as_retriever(&quot;skills&quot;)}</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sources</span></code> is any <code class="docutils literal notranslate"><span class="pre">Mapping[name,</span> <span class="pre">Retriever]</span></code>. Build it with <a class="reference internal" href="#sources"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">raglab.ir_sources(*names,</span> <span class="pre">**defaults)</span></code></span></a>, with <code class="docutils literal notranslate"><span class="pre">ir.retrievers()</span></code> (a lazy live view over everything ir has registered), or by hand: <code class="docutils literal notranslate"><span class="pre">{&quot;skills&quot;:</span> <span class="pre">ir.as_retriever(&quot;skills&quot;)}</span></code>.</p>
 </section>
 <hr class="docutils" />
 <section id="the-mental-model">
@@ -411,10 +402,7 @@ lazy live view over everything ir has registered), or by hand:
                                        Reranker (fan-in) → Citer → ranked results
 </pre></div>
 </div>
-<p>The <strong>loop is fixed</strong>; every <em>decision</em> in it is an injected <strong>role</strong> (a plain
-callable satisfying a <code class="docutils literal notranslate"><span class="pre">Protocol</span></code>). v1 ships every role with a sensible default,
-so the simple path — <code class="docutils literal notranslate"><span class="pre">make_search_agent(sources)(&quot;query&quot;)</span></code> — just works. You turn
-capabilities on by swapping in richer roles.</p>
+<p>The <strong>loop is fixed</strong>; every <em>decision</em> in it is an injected <strong>role</strong> (a plain callable satisfying a <code class="docutils literal notranslate"><span class="pre">Protocol</span></code>). v1 ships every role with a sensible default, so the simple path — <code class="docutils literal notranslate"><span class="pre">make_search_agent(sources)(&quot;query&quot;)</span></code> — just works. You turn capabilities on by swapping in richer roles.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Role</p></th>
@@ -457,15 +445,13 @@ capabilities on by swapping in richer roles.</p>
 </tbody>
 </table>
 </div>
-<p><strong><code class="docutils literal notranslate"><span class="pre">Budget</span></code></strong> bounds the loop (<code class="docutils literal notranslate"><span class="pre">max_rounds</span></code>, <code class="docutils literal notranslate"><span class="pre">max_sources_per_task</span></code>,
-<code class="docutils literal notranslate"><span class="pre">max_results_per_task</span></code>) — the safety net under the (harder) sufficiency decision.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Budget</span></code></strong> bounds the loop (<code class="docutils literal notranslate"><span class="pre">max_rounds</span></code>, <code class="docutils literal notranslate"><span class="pre">max_sources_per_task</span></code>, <code class="docutils literal notranslate"><span class="pre">max_results_per_task</span></code>) — the safety net under the (harder) sufficiency decision.</p>
 </section>
 <hr class="docutils" />
 <section id="turning-on-query-understanding-and-the-back-edge">
 <h2>Turning on query understanding and the back-edge<a class="headerlink" href="#turning-on-query-understanding-and-the-back-edge" title="Link to this heading">#</a></h2>
-<p>Inject the two LLM roles to upgrade the offline slice into a real agent. Both
-build their model lazily on <a class="reference external" href="https://github.com/thorwhalen/oa"><code class="docutils literal notranslate"><span class="pre">oa</span></code></a> <strong>only when
-invoked</strong>, so <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">raglab</span></code> stays offline.</p>
+<p>Inject the two LLM roles to upgrade the offline slice into a real agent. Both build their model lazily on <a class="reference external" href="https://github.com/thorwhalen/oa"><code class="docutils literal notranslate"><span class="pre">oa</span></code></a> <strong>only when invoked</strong>, so <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">raglab</span></code> stays offline.</p>
+<!-- wads-docs: skip needs registered ir corpora and an LLM key -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">raglab</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">raglab</span><span class="o">.</span><span class="n">make_search_agent</span><span class="p">(</span>
@@ -478,32 +464,16 @@ invoked</strong>, so <code class="docutils literal notranslate"><span class="pre
 </div>
 <p>How the Evaluator splits the decision (a load-bearing boundary):</p>
 <ul class="simple">
-<li><p><strong>Relevance is <code class="docutils literal notranslate"><span class="pre">ir</span></code>’s.</strong> Each round the accumulated hits pass through
-<code class="docutils literal notranslate"><span class="pre">ir.select</span></code> (default strategy <code class="docutils literal notranslate"><span class="pre">&quot;conservative&quot;</span></code> — distractor-robust); the
-committed subset becomes <code class="docutils literal notranslate"><span class="pre">Judgement.relevant</span></code>. LLM relevance scoring is
-known-fragile, so the LLM stays out of it.</p></li>
-<li><p><strong>Sufficiency is the LLM’s.</strong> Informed by ir’s model-free
-<code class="docutils literal notranslate"><span class="pre">Selection.sufficient</span></code> hint, the judge decides whether the committed subset
-actually satisfies the goal. If not, it emits an improved query — a
-<code class="docutils literal notranslate"><span class="pre">refinement</span></code> <code class="docutils literal notranslate"><span class="pre">SubTask</span></code> over the same sources. <strong>That refinement is the
-back-edge.</strong></p></li>
+<li><p><strong>Relevance is <code class="docutils literal notranslate"><span class="pre">ir</span></code>’s.</strong> Each round the accumulated hits pass through <code class="docutils literal notranslate"><span class="pre">ir.select</span></code> (default strategy <code class="docutils literal notranslate"><span class="pre">&quot;conservative&quot;</span></code> — distractor-robust); the committed subset becomes <code class="docutils literal notranslate"><span class="pre">Judgement.relevant</span></code>. LLM relevance scoring is known-fragile, so the LLM stays out of it.</p></li>
+<li><p><strong>Sufficiency is the LLM’s.</strong> Informed by ir’s model-free <code class="docutils literal notranslate"><span class="pre">Selection.sufficient</span></code> hint, the judge decides whether the committed subset actually satisfies the goal. If not, it emits an improved query — a <code class="docutils literal notranslate"><span class="pre">refinement</span></code> <code class="docutils literal notranslate"><span class="pre">SubTask</span></code> over the same sources. <strong>That refinement is the back-edge.</strong></p></li>
 </ul>
-<p>Both builders accept an injectable double (<code class="docutils literal notranslate"><span class="pre">formulate=</span></code> / <code class="docutils literal notranslate"><span class="pre">judge=</span></code>) for
-deterministic tests, and both <strong>fail safe</strong>: a formulator error falls back to the
-raw query (never makes retrieval worse); a judge error returns no refinement
-(the loop’s break condition — a failing judge can never spin forever).</p>
+<p>Both builders accept an injectable double (<code class="docutils literal notranslate"><span class="pre">formulate=</span></code> / <code class="docutils literal notranslate"><span class="pre">judge=</span></code>) for deterministic tests, and both <strong>fail safe</strong>: a formulator error falls back to the raw query (never makes retrieval worse); a judge error returns no refinement (the loop’s break condition — a failing judge can never spin forever).</p>
 </section>
 <hr class="docutils" />
 <section id="multi-source-search-and-the-fan-in-reranker">
 <h2>Multi-source search and the fan-in reranker<a class="headerlink" href="#multi-source-search-and-the-fan-in-reranker" title="Link to this heading">#</a></h2>
-<p>The agent is <strong>multi-source by default</strong>. The loop stamps each hit’s provenance
-(<code class="docutils literal notranslate"><span class="pre">hit.source</span></code>), and the default fan-in reranker, <code class="docutils literal notranslate"><span class="pre">rrf_reranker</span></code>, merges
-heterogeneous sources <strong>by rank, never by raw score</strong>.</p>
-<p>This matters because scores from different corpora / embedders / retrieval modes
-are <em>incommensurable</em> — a cosine score (~0–1) and a BM25 score (~0–50) cannot be
-compared directly. Reciprocal Rank Fusion (RRF) sidesteps this: within one source
-raw scores order and dedup that source’s hits (one scale, sound); across sources
-only <strong>ranks</strong> interact.</p>
+<p>The agent is <strong>multi-source by default</strong>. The loop stamps each hit’s provenance (<code class="docutils literal notranslate"><span class="pre">hit.source</span></code>), and the default fan-in reranker, <code class="docutils literal notranslate"><span class="pre">rrf_reranker</span></code>, merges heterogeneous sources <strong>by rank, never by raw score</strong>.</p>
+<p>This matters because scores from different corpora / embedders / retrieval modes are <em>incommensurable</em> — a cosine score (~0–1) and a BM25 score (~0–50) cannot be compared directly. Reciprocal Rank Fusion (RRF) sidesteps this: within one source raw scores order and dedup that source’s hits (one scale, sound); across sources only <strong>ranks</strong> interact.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Two sources on different score scales:</span>
 <span class="c1">#   rrf_reranker (default): interleaves both sources' rank-1 hits first.</span>
 <span class="c1">#   score_reranker (opt-in): a raw-score sort — only sound when every source</span>
@@ -511,9 +481,7 @@ only <strong>ranks</strong> interact.</p>
 <span class="n">agent</span> <span class="o">=</span> <span class="n">raglab</span><span class="o">.</span><span class="n">make_search_agent</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">reranker</span><span class="o">=</span><span class="n">raglab</span><span class="o">.</span><span class="n">score_reranker</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Colliding <code class="docutils literal notranslate"><span class="pre">artifact_id</span></code>s from different sources stay distinct (identity is
-<code class="docutils literal notranslate"><span class="pre">(source,</span> <span class="pre">artifact_id)</span></code>). Each fused hit keeps its pre-fusion magnitude in
-<code class="docutils literal notranslate"><span class="pre">metadata[&quot;source_score&quot;]</span></code>. For per-source trust weights or a custom <code class="docutils literal notranslate"><span class="pre">rrf_k</span></code>:</p>
+<p>Colliding <code class="docutils literal notranslate"><span class="pre">artifact_id</span></code>s from different sources stay distinct (identity is <code class="docutils literal notranslate"><span class="pre">(source,</span> <span class="pre">artifact_id)</span></code>). Each fused hit keeps its pre-fusion magnitude in <code class="docutils literal notranslate"><span class="pre">metadata[&quot;source_score&quot;]</span></code>. For per-source trust weights or a custom <code class="docutils literal notranslate"><span class="pre">rrf_k</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">reranker</span> <span class="o">=</span> <span class="n">raglab</span><span class="o">.</span><span class="n">make_rrf_reranker</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s2">"skills"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">"web"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span> <span class="n">rrf_k</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
 <span class="n">agent</span> <span class="o">=</span> <span class="n">raglab</span><span class="o">.</span><span class="n">make_search_agent</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">reranker</span><span class="o">=</span><span class="n">reranker</span><span class="p">)</span>
 </pre></div>
@@ -541,10 +509,7 @@ only <strong>ranks</strong> interact.</p>
 <span class="n">agent</span> <span class="o">=</span> <span class="n">make_search_agent</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">planner</span><span class="o">=</span><span class="n">my_planner</span><span class="p">,</span> <span class="n">formulator</span><span class="o">=</span><span class="n">my_formulator</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A <strong>custom Retriever</strong> is any <code class="docutils literal notranslate"><span class="pre">callable(query,</span> <span class="pre">**params)</span> <span class="pre">-&gt;</span> <span class="pre">Sequence[ir.SearchHit]</span></code>.
-It must return <code class="docutils literal notranslate"><span class="pre">ir.SearchHit</span></code> instances (the <code class="docutils literal notranslate"><span class="pre">Result</span></code> alias) — the loop stamps
-provenance on its output, so duck-typed hit objects raise at the tagging step.
-ir-backed retrievers self-attribute their corpus name.</p>
+<p>A <strong>custom Retriever</strong> is any <code class="docutils literal notranslate"><span class="pre">callable(query,</span> <span class="pre">**params)</span> <span class="pre">-&gt;</span> <span class="pre">Sequence[ir.SearchHit]</span></code>. It must return <code class="docutils literal notranslate"><span class="pre">ir.SearchHit</span></code> instances (the <code class="docutils literal notranslate"><span class="pre">Result</span></code> alias) — the loop stamps provenance on its output, so duck-typed hit objects raise at the tagging step. ir-backed retrievers self-attribute their corpus name.</p>
 </section>
 <hr class="docutils" />
 <section id="api-at-a-glance">
@@ -579,8 +544,7 @@ ir-backed retrievers self-attribute their corpus name.</p>
 </tbody>
 </table>
 </div>
-<p><strong>Role Protocols</strong> (the open-closed strategy seams): <code class="docutils literal notranslate"><span class="pre">Planner</span></code>, <code class="docutils literal notranslate"><span class="pre">Formulator</span></code>,
-<code class="docutils literal notranslate"><span class="pre">Retriever</span></code> (re-exported from <code class="docutils literal notranslate"><span class="pre">ir</span></code>), <code class="docutils literal notranslate"><span class="pre">Evaluator</span></code>, <code class="docutils literal notranslate"><span class="pre">Reranker</span></code>, <code class="docutils literal notranslate"><span class="pre">Citer</span></code>.</p>
+<p><strong>Role Protocols</strong> (the open-closed strategy seams): <code class="docutils literal notranslate"><span class="pre">Planner</span></code>, <code class="docutils literal notranslate"><span class="pre">Formulator</span></code>, <code class="docutils literal notranslate"><span class="pre">Retriever</span></code> (re-exported from <code class="docutils literal notranslate"><span class="pre">ir</span></code>), <code class="docutils literal notranslate"><span class="pre">Evaluator</span></code>, <code class="docutils literal notranslate"><span class="pre">Reranker</span></code>, <code class="docutils literal notranslate"><span class="pre">Citer</span></code>.</p>
 <p><strong>Orchestrator &amp; builders:</strong></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -601,73 +565,43 @@ ir-backed retrievers self-attribute their corpus name.</p>
 </tbody>
 </table>
 </div>
-<p><strong>Default roles (the no-LLM thin slice):</strong> <code class="docutils literal notranslate"><span class="pre">single_subtask_planner</span></code>,
-<code class="docutils literal notranslate"><span class="pre">identity_formulator</span></code>, <code class="docutils literal notranslate"><span class="pre">passthrough_evaluator</span></code>, <code class="docutils literal notranslate"><span class="pre">score_reranker</span></code>, <code class="docutils literal notranslate"><span class="pre">rrf_reranker</span></code>,
-<code class="docutils literal notranslate"><span class="pre">make_rrf_reranker(*,</span> <span class="pre">rrf_k,</span> <span class="pre">weights,</span> <span class="pre">identity)</span></code>, <code class="docutils literal notranslate"><span class="pre">identity_citer</span></code>.</p>
-<p><strong>LLM roles:</strong> <code class="docutils literal notranslate"><span class="pre">make_llm_formulator(*,</span> <span class="pre">formulate=None,</span> <span class="pre">params=None,</span> <span class="pre">**make_kwargs)</span></code>,
-<code class="docutils literal notranslate"><span class="pre">make_llm_evaluator(*,</span> <span class="pre">judge=None,</span> <span class="pre">select_strategy=&quot;conservative&quot;,</span> <span class="pre">select_kwargs=None,</span> <span class="pre">prerank=None,</span> <span class="pre">prompt=EVALUATION_PROMPT,</span> <span class="pre">...)</span></code>,
-and the default <code class="docutils literal notranslate"><span class="pre">EVALUATION_PROMPT</span></code> string.</p>
+<p><strong>Default roles (the no-LLM thin slice):</strong> <code class="docutils literal notranslate"><span class="pre">single_subtask_planner</span></code>, <code class="docutils literal notranslate"><span class="pre">identity_formulator</span></code>, <code class="docutils literal notranslate"><span class="pre">passthrough_evaluator</span></code>, <code class="docutils literal notranslate"><span class="pre">score_reranker</span></code>, <code class="docutils literal notranslate"><span class="pre">rrf_reranker</span></code>, <code class="docutils literal notranslate"><span class="pre">make_rrf_reranker(*,</span> <span class="pre">rrf_k,</span> <span class="pre">weights,</span> <span class="pre">identity)</span></code>, <code class="docutils literal notranslate"><span class="pre">identity_citer</span></code>.</p>
+<p><strong>LLM roles:</strong> <code class="docutils literal notranslate"><span class="pre">make_llm_formulator(*,</span> <span class="pre">formulate=None,</span> <span class="pre">params=None,</span> <span class="pre">**make_kwargs)</span></code>, <code class="docutils literal notranslate"><span class="pre">make_llm_evaluator(*,</span> <span class="pre">judge=None,</span> <span class="pre">select_strategy=&quot;conservative&quot;,</span> <span class="pre">select_kwargs=None,</span> <span class="pre">prerank=None,</span> <span class="pre">prompt=EVALUATION_PROMPT,</span> <span class="pre">...)</span></code>, and the default <code class="docutils literal notranslate"><span class="pre">EVALUATION_PROMPT</span></code> string.</p>
 </section>
 <hr class="docutils" />
 <section id="architecture-boundaries">
 <span id="architecture--boundaries"></span><h2>Architecture &amp; boundaries<a class="headerlink" href="#architecture-boundaries" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">raglab</span></code> <strong>owns the agent</strong>: the value types, the role Protocols, the control
-loop with the back-edge, the budget governor, the source registry, and the
-cross-source fan-in.</p>
-<p>It <strong>consumes from <code class="docutils literal notranslate"><span class="pre">ir</span></code></strong> (and does not reimplement): <code class="docutils literal notranslate"><span class="pre">ir.as_retriever</span></code> (corpus →
-Retriever), <code class="docutils literal notranslate"><span class="pre">ir.retrievers()</span></code> (the live registry view), <code class="docutils literal notranslate"><span class="pre">ir.make_llm_formulator</span></code>
-(the query rewriter), <code class="docutils literal notranslate"><span class="pre">ir.select</span></code> + its <code class="docutils literal notranslate"><span class="pre">Selection.sufficient</span></code> signal (relevance</p>
+<p><code class="docutils literal notranslate"><span class="pre">raglab</span></code> <strong>owns the agent</strong>: the value types, the role Protocols, the control loop with the back-edge, the budget governor, the source registry, and the cross-source fan-in.</p>
+<p>It <strong>consumes from <code class="docutils literal notranslate"><span class="pre">ir</span></code></strong> (and does not reimplement): <code class="docutils literal notranslate"><span class="pre">ir.as_retriever</span></code> (corpus → Retriever), <code class="docutils literal notranslate"><span class="pre">ir.retrievers()</span></code> (the live registry view), <code class="docutils literal notranslate"><span class="pre">ir.make_llm_formulator</span></code> (the query rewriter), <code class="docutils literal notranslate"><span class="pre">ir.select</span></code> + its <code class="docutils literal notranslate"><span class="pre">Selection.sufficient</span></code> signal (relevance</p>
 <ul class="simple">
-<li><p>the sufficiency hint), and <code class="docutils literal notranslate"><span class="pre">ir.fuse_hits</span></code> (RRF). The <code class="docutils literal notranslate"><span class="pre">Result</span></code> type and the
-<code class="docutils literal notranslate"><span class="pre">Retriever</span></code> contract are <strong>ir’s</strong> (single source of truth).</p></li>
+<li><p>the sufficiency hint), and <code class="docutils literal notranslate"><span class="pre">ir.fuse_hits</span></code> (RRF). The <code class="docutils literal notranslate"><span class="pre">Result</span></code> type and the <code class="docutils literal notranslate"><span class="pre">Retriever</span></code> contract are <strong>ir’s</strong> (single source of truth).</p></li>
 </ul>
-<p><strong>Dependency direction is one-way:</strong> <code class="docutils literal notranslate"><span class="pre">raglab</span></code> imports <code class="docutils literal notranslate"><span class="pre">ir</span></code> (and <code class="docutils literal notranslate"><span class="pre">oa</span></code> for the LLM
-roles, lazily); <strong><code class="docutils literal notranslate"><span class="pre">ir</span></code> never imports <code class="docutils literal notranslate"><span class="pre">raglab</span></code>.</strong> Keeping <code class="docutils literal notranslate"><span class="pre">oa</span></code> opt-in is what lets
-<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">raglab</span></code> stay offline.</p>
-<p>What lives <strong>elsewhere:</strong> answer synthesis / generation and the
-Citer/Verifier (which needs a <em>generated claim</em> to verify) belong in the
-RAG/generation layer (<code class="docutils literal notranslate"><span class="pre">srag</span></code>), not the search agent. raglab’s deliverable is
-<strong>pointers + extractions</strong>, not an essay.</p>
-<p>Where it sits in the ecosystem: <strong><code class="docutils literal notranslate"><span class="pre">raglab</span></code> → <code class="docutils literal notranslate"><span class="pre">ir</span></code> → {<code class="docutils literal notranslate"><span class="pre">ef</span></code>, <code class="docutils literal notranslate"><span class="pre">vd</span></code>}</strong> — <code class="docutils literal notranslate"><span class="pre">ir</span></code> is the
-retrieval substrate, <code class="docutils literal notranslate"><span class="pre">ef</span></code> owns embedders/segmenters, <code class="docutils literal notranslate"><span class="pre">vd</span></code> is the vector-store
-facade.</p>
+<p><strong>Dependency direction is one-way:</strong> <code class="docutils literal notranslate"><span class="pre">raglab</span></code> imports <code class="docutils literal notranslate"><span class="pre">ir</span></code> (and <code class="docutils literal notranslate"><span class="pre">oa</span></code> for the LLM roles, lazily); <strong><code class="docutils literal notranslate"><span class="pre">ir</span></code> never imports <code class="docutils literal notranslate"><span class="pre">raglab</span></code>.</strong> Keeping <code class="docutils literal notranslate"><span class="pre">oa</span></code> opt-in is what lets <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">raglab</span></code> stay offline.</p>
+<p>What lives <strong>elsewhere:</strong> answer synthesis / generation and the Citer/Verifier (which needs a <em>generated claim</em> to verify) belong in the RAG/generation layer (<code class="docutils literal notranslate"><span class="pre">srag</span></code>), not the search agent. raglab’s deliverable is <strong>pointers + extractions</strong>, not an essay.</p>
+<p>Where it sits in the ecosystem: <strong><code class="docutils literal notranslate"><span class="pre">raglab</span></code> → <code class="docutils literal notranslate"><span class="pre">ir</span></code> → {<code class="docutils literal notranslate"><span class="pre">ef</span></code>, <code class="docutils literal notranslate"><span class="pre">vd</span></code>}</strong> — <code class="docutils literal notranslate"><span class="pre">ir</span></code> is the retrieval substrate, <code class="docutils literal notranslate"><span class="pre">ef</span></code> owns embedders/segmenters, <code class="docutils literal notranslate"><span class="pre">vd</span></code> is the vector-store facade.</p>
 </section>
 <hr class="docutils" />
 <section id="status-roadmap">
 <span id="status--roadmap"></span><h2>Status &amp; roadmap<a class="headerlink" href="#status-roadmap" title="Link to this heading">#</a></h2>
-<p>Shipped at <strong>0.2.4</strong>: the <code class="docutils literal notranslate"><span class="pre">SingleContextAgent</span></code> control loop with the back-edge,
-all six role Protocols, the no-LLM defaults, the LLM Formulator + Evaluator, and
-the RRF cross-source fan-in reranker. The roles, value types, and loop are
-stable; richer strategies are added behind the same contracts.</p>
-<p>The living roadmap is <strong><a class="reference external" href="https://github.com/addaix/raglab/issues/2">issue #2</a></strong>
-(Composable Search Agent on ir, the <em>ir_09</em> reference design). Not yet built:</p>
+<p>Shipped at <strong>0.2.4</strong>: the <code class="docutils literal notranslate"><span class="pre">SingleContextAgent</span></code> control loop with the back-edge, all six role Protocols, the no-LLM defaults, the LLM Formulator + Evaluator, and the RRF cross-source fan-in reranker. The roles, value types, and loop are stable; richer strategies are added behind the same contracts.</p>
+<p>The living roadmap is <strong><a class="reference external" href="https://github.com/addaix/raglab/issues/2">issue #2</a></strong> (Composable Search Agent on ir, the <em>ir_09</em> reference design). Not yet built:</p>
 <ul class="simple">
-<li><p><strong>Budget governor refinements</strong> — the per-task results cap currently truncates
-in arrival order rather than by rank
-(<a class="reference external" href="https://github.com/addaix/raglab/issues/5">#5</a>); termination as a
-separately injected policy is planned.</p></li>
-<li><p><strong>PurposeStore</strong> — persistent, purpose-indexed memory overlay
-(<a class="reference external" href="https://github.com/addaix/raglab/issues/6">#6</a>). There is no cross-run
-memory today.</p></li>
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">MultiAgentAgent</span></code></strong> — one subagent per sub-task/source (breadth-first, ~15×
-cost); promotion swaps only the orchestrator, keeping role contracts identical.</p></li>
+<li><p><strong>Budget governor refinements</strong> — the per-task results cap currently truncates in arrival order rather than by rank (<a class="reference external" href="https://github.com/addaix/raglab/issues/5">#5</a>); termination as a separately injected policy is planned.</p></li>
+<li><p><strong>PurposeStore</strong> — persistent, purpose-indexed memory overlay (<a class="reference external" href="https://github.com/addaix/raglab/issues/6">#6</a>). There is no cross-run memory today.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">MultiAgentAgent</span></code></strong> — one subagent per sub-task/source (breadth-first, ~15× cost); promotion swaps only the orchestrator, keeping role contracts identical.</p></li>
 </ul>
 </section>
 <hr class="docutils" />
 <section id="house-style">
 <h2>House style<a class="headerlink" href="#house-style" title="Link to this heading">#</a></h2>
-<p>Functional over OOP; SOLID when OOP; facades, SSOT, dependency injection;
-progressive disclosure; keyword-only args beyond the third positional;
-<code class="docutils literal notranslate"><span class="pre">collections.abc</span></code> + frozen <code class="docutils literal notranslate"><span class="pre">dataclass</span></code>es; <code class="docutils literal notranslate"><span class="pre">Protocol</span></code>s for the role seams. Tests
-are hermetic (fake retrievers, injected LLM doubles) with a few end-to-end checks
-over a real <code class="docutils literal notranslate"><span class="pre">ir</span></code> corpus using the light, numpy-only embedder.</p>
+<p>Functional over OOP; SOLID when OOP; facades, SSOT, dependency injection; progressive disclosure; keyword-only args beyond the third positional; <code class="docutils literal notranslate"><span class="pre">collections.abc</span></code> + frozen <code class="docutils literal notranslate"><span class="pre">dataclass</span></code>es; <code class="docutils literal notranslate"><span class="pre">Protocol</span></code>s for the role seams. Tests are hermetic (fake retrievers, injected LLM doubles) with a few end-to-end checks over a real <code class="docutils literal notranslate"><span class="pre">ir</span></code> corpus using the light, numpy-only embedder.</p>
 <p class="epythet-aggregates">This documentation as a single file: <a href="raglab.md">raglab.md</a> (Markdown, for agents).</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 14:38 UTC from <a href="https://github.com/addaix/raglab/commit/b6470a61f41ebe06c6a72903fe3a14037b9fadf0">b6470a6</a> (main) · raglab 0.2.12 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-23 06:10 UTC from <a href="https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c">2de8828</a> (main) · raglab 0.2.12 · <a href="about-this-build.html">about this build</a></p>
 
                 </article>
               
