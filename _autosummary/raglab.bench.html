@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../_static/documentation_options.js?v=1e30946d"></script>
+    <script src="../_static/documentation_options.js?v=ba481074"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.12" />
+  <meta name="docsearch:version" content="0.2.13" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -427,6 +427,9 @@ deterministic snapshot to read <code class="docutils literal notranslate"><span 
 <tr class="row-even"><td><p><a class="reference internal" href="#raglab.bench.extraction_counts" title="raglab.bench.extraction_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extraction_counts</span></code></a>(store)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{purpose:</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">units</span> <span class="pre">kept}</span></code> (each purpose under its own statement).</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#raglab.bench.loop_vs_single_benchmark" title="raglab.bench.loop_vs_single_benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loop_vs_single_benchmark</span></code></a>(sources, questions, *)</p></td>
+<td><p>Run each question through the agent loop and through a single discover; compare.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -436,8 +439,14 @@ deterministic snapshot to read <code class="docutils literal notranslate"><span 
 <tr class="row-odd"><td><p><a class="reference internal" href="#raglab.bench.CrossRunReport" title="raglab.bench.CrossRunReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CrossRunReport</span></code></a>(rows[, extractions])</p></td>
 <td><p>Totals over a workload, with the per-purpose <code class="docutils literal notranslate"><span class="pre">rows</span></code> and <code class="docutils literal notranslate"><span class="pre">extractions</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#raglab.bench.PurposeRow" title="raglab.bench.PurposeRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PurposeRow</span></code></a>(purpose, sweeps_cold, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#raglab.bench.LoopVsSingleReport" title="raglab.bench.LoopVsSingleReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LoopVsSingleReport</span></code></a>(rows)</p></td>
+<td><p>Totals over the questions, with the per-question <code class="docutils literal notranslate"><span class="pre">rows</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#raglab.bench.PurposeRow" title="raglab.bench.PurposeRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PurposeRow</span></code></a>(purpose, sweeps_cold, ...)</p></td>
 <td><p>One purpose of the workload: its source calls cold and warm, and its recall.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#raglab.bench.QuestionRow" title="raglab.bench.QuestionRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuestionRow</span></code></a>(question, calls_loop, ...[, ...])</p></td>
+<td><p>One question: source calls and hits of the loop and of a single discover.</p></td>
 </tr>
 </tbody>
 </table>
@@ -464,12 +473,69 @@ deterministic snapshot to read <code class="docutils literal notranslate"><span 
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="raglab.bench.LoopVsSingleReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">raglab.bench.</span></span><span class="sig-name descname"><span class="pre">LoopVsSingleReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/raglab/bench.html#LoopVsSingleReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#raglab.bench.LoopVsSingleReport" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Totals over the questions, with the per-question <code class="docutils literal notranslate"><span class="pre">rows</span></code>.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="raglab.bench.LoopVsSingleReport.extra_calls">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">extra_calls</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><a class="headerlink" href="#raglab.bench.LoopVsSingleReport.extra_calls" title="Link to this definition">#</a></dt>
+<dd><p>no extra).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Source calls the loop makes per call of a single discover (<code class="docutils literal notranslate"><span class="pre">1.0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="raglab.bench.LoopVsSingleReport.single_recall_of_loop">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">single_recall_of_loop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><a class="headerlink" href="#raglab.bench.LoopVsSingleReport.single_recall_of_loop" title="Link to this definition">#</a></dt>
+<dd><p>Mean share of the loop’s hits a single discover also returned.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="raglab.bench.PurposeRow">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">raglab.bench.</span></span><span class="sig-name descname"><span class="pre">PurposeRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">purpose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweeps_cold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweeps_warm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recall</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/raglab/bench.html#PurposeRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#raglab.bench.PurposeRow" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>One purpose of the workload: its source calls cold and warm, and its recall.</p>
 <dl class="field-list simple">
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="raglab.bench.QuestionRow">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">raglab.bench.</span></span><span class="sig-name descname"><span class="pre">QuestionRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calls_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calls_single</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hits_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hits_single</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_recall_of_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recall_loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recall_single</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/raglab/bench.html#QuestionRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#raglab.bench.QuestionRow" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>One question: source calls and hits of the loop and of a single discover.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="raglab.bench.QuestionRow.recall_loop">
+<span class="sig-name descname"><span class="pre">recall_loop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#raglab.bench.QuestionRow.recall_loop" title="Link to this definition">#</a></dt>
+<dd><p>share of the relevant ids each variant returned (else <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>with <code class="docutils literal notranslate"><span class="pre">relevant</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="raglab.bench.QuestionRow.single_recall_of_loop">
+<span class="sig-name descname"><span class="pre">single_recall_of_loop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><a class="headerlink" href="#raglab.bench.QuestionRow.single_recall_of_loop" title="Link to this definition">#</a></dt>
+<dd><p>the loop added nothing)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>share of the loop’s hits that a single discover also returned (1.0</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -501,6 +567,25 @@ The warm agent shares one <code class="docutils literal notranslate"><span class
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="raglab.bench.loop_vs_single_benchmark">
+<span class="sig-prename descclassname"><span class="pre">raglab.bench.</span></span><span class="sig-name descname"><span class="pre">loop_vs_single_benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">questions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relevant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_factory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">make_search_agent&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_budget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**loop_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/raglab/bench.html#loop_vs_single_benchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#raglab.bench.loop_vs_single_benchmark" title="Link to this definition">#</a></dt>
+<dd><p>Run each question through the agent loop and through a single discover; compare.</p>
+<p>The <em>single</em> run is the same agent with <code class="docutils literal notranslate"><span class="pre">single_budget</span></code> (default one round, one
+pass over the sources) and none of <code class="docutils literal notranslate"><span class="pre">loop_kwargs</span></code>: no LLM roles, so no rewriting
+and no back-edge. The <em>loop</em> run gets <code class="docutils literal notranslate"><span class="pre">loop_kwargs</span></code> (<code class="docutils literal notranslate"><span class="pre">formulator</span></code>, <code class="docutils literal notranslate"><span class="pre">evaluator</span></code>,
+<code class="docutils literal notranslate"><span class="pre">planner</span></code>, <code class="docutils literal notranslate"><span class="pre">budget</span></code>…). Both count their retriever calls. <code class="docutils literal notranslate"><span class="pre">relevant</span></code> maps a
+question to the artifact ids that answer it, and adds recall against that ground
+truth; without it the report says how much of the loop’s answer a single discover
+already had, and what the loop costs in extra source calls. Offline when the roles
+are: pass fakes, or live sources for a real measurement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#raglab.bench.LoopVsSingleReport" title="raglab.bench.LoopVsSingleReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoopVsSingleReport</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -559,9 +644,20 @@ The warm agent shares one <code class="docutils literal notranslate"><span class
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.CrossRunReport.sweeps_saved"><code class="docutils literal notranslate"><span class="pre">CrossRunReport.sweeps_saved</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.LoopVsSingleReport"><code class="docutils literal notranslate"><span class="pre">LoopVsSingleReport</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.LoopVsSingleReport.extra_calls"><code class="docutils literal notranslate"><span class="pre">LoopVsSingleReport.extra_calls</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.LoopVsSingleReport.single_recall_of_loop"><code class="docutils literal notranslate"><span class="pre">LoopVsSingleReport.single_recall_of_loop</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.PurposeRow"><code class="docutils literal notranslate"><span class="pre">PurposeRow</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.QuestionRow"><code class="docutils literal notranslate"><span class="pre">QuestionRow</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.QuestionRow.recall_loop"><code class="docutils literal notranslate"><span class="pre">QuestionRow.recall_loop</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.QuestionRow.single_recall_of_loop"><code class="docutils literal notranslate"><span class="pre">QuestionRow.single_recall_of_loop</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.cross_run_benchmark"><code class="docutils literal notranslate"><span class="pre">cross_run_benchmark()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.extraction_counts"><code class="docutils literal notranslate"><span class="pre">extraction_counts()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raglab.bench.loop_vs_single_benchmark"><code class="docutils literal notranslate"><span class="pre">loop_vs_single_benchmark()</span></code></a></li>
 </ul>
   </nav></div>
 

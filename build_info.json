@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-23T06:10:16Z",
+  "built_at": "2026-11-23T07:55:53Z",
   "package": {
     "name": "raglab",
-    "version": "0.2.12",
+    "version": "0.2.13",
     "display_name": "raglab",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "2de882861c5b6db8b3128b48593cdae2d1c1d07c",
-    "short_commit": "2de8828",
+    "commit": "11b7e3444e639f490fdb8002593418c9f79a18b6",
+    "short_commit": "11b7e34",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/addaix/raglab",
-    "commit_url": "https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c",
+    "commit_url": "https://github.com/addaix/raglab/commit/11b7e3444e639f490fdb8002593418c9f79a18b6",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "addaix/raglab",
-    "sha": "2de882861c5b6db8b3128b48593cdae2d1c1d07c",
+    "sha": "11b7e3444e639f490fdb8002593418c9f79a18b6",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "45122170170",
-    "run_url": "https://github.com/addaix/raglab/actions/runs/45122170170",
+    "run_id": "45134504971",
+    "run_url": "https://github.com/addaix/raglab/actions/runs/45134504971",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.23",
+    "epythet": "0.2.24",
     "sphinx": "9.1.1",
     "docutils": "0.22.4",
     "python": "3.12.16"
@@ -56,20 +56,18 @@
   },
   "site": {
     "modules_documented": 8,
-    "objects_documented": 124
+    "objects_documented": 131
   },
   "pypi": {
     "checked": true,
     "latest": "0.2.13",
-    "relation": "behind",
+    "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout 2de882861c5b6db8b3128b48593cdae2d1c1d07c\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/addaix/raglab && cd raglab\ngit checkout 11b7e3444e639f490fdb8002593418c9f79a18b6\npip install \"epythet==0.2.24\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": false,
-    "notes": [
-      "The documented version (0.2.12) is behind the latest release on PyPI (0.2.13): `pip install raglab` gives newer code than these docs describe."
-    ]
+    "aligned": true,
+    "notes": []
   }
 }

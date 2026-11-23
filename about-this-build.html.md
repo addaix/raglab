@@ -2,18 +2,16 @@
 
 # About this build
 
-This documentation was built on **2026-11-23 06:10 UTC** from commit <a href="https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c"><code>2de8828</code></a> on branch <code>main</code>, for **raglab 0.2.12** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-23 07:55 UTC** from commit <a href="https://github.com/addaix/raglab/commit/11b7e3444e639f490fdb8002593418c9f79a18b6"><code>11b7e34</code></a> on branch <code>main</code>, for **raglab 0.2.13** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.2.12) is behind the latest release on PyPI (0.2.13): `pip install raglab` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                      |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c"><code>2de882861c5b6db8b3128b48593cdae2d1c1d07c</code></a> |
+| Commit              | <a href="https://github.com/addaix/raglab/commit/11b7e3444e639f490fdb8002593418c9f79a18b6"><code>11b7e3444e639f490fdb8002593418c9f79a18b6</code></a> |
 | Branch              | <code>main</code>                                                                                                                                    |
 | Tags at this commit | none                                                                                                                                                 |
 | Working tree        | clean                                                                                                                                                |
@@ -24,15 +22,15 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/raglab</code>                                                                 |
-| Run          | <a href="https://github.com/addaix/raglab/actions/runs/45122170170">45122170170</a>        |
+| Run          | <a href="https://github.com/addaix/raglab/actions/runs/45134504971">45134504971</a>        |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>2de882861c5b6db8b3128b48593cdae2d1c1d07c</code> (in the history of the built commit) |
+| Event commit | <code>11b7e3444e639f490fdb8002593418c9f79a18b6</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.23  |
+| epythet  | 0.2.24  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.16 |
@@ -51,14 +49,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/raglab/0.2.13/">0.2.13</a>, newer than the documented version (0.2.12).
+Latest release: <a href="https://pypi.org/project/raglab/0.2.13/">0.2.13</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/addaix/raglab && cd raglab
-git checkout 2de882861c5b6db8b3128b48593cdae2d1c1d07c
-pip install "epythet==0.2.23"
+git checkout 11b7e3444e639f490fdb8002593418c9f79a18b6
+pip install "epythet==0.2.24"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

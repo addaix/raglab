@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=1e30946d"></script>
+    <script src="../../_static/documentation_options.js?v=ba481074"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -411,7 +411,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.12" />
+  <meta name="docsearch:version" content="0.2.13" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -743,7 +743,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Retriever</span><span class="p">,</span> <span class="n">make_search_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Budget</span><span class="p">,</span> <span class="n">Retriever</span><span class="p">,</span> <span class="n">make_search_agent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">PurposeStore</span><span class="p">,</span> <span class="n">purpose_id</span>
 
 <span class="n">AgentFactory</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">]]</span>
@@ -881,6 +881,129 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">CrossRunReport</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">extraction_counts</span><span class="p">(</span><span class="n">store</span><span class="p">))</span></div>
 
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># Loop vs single discover (raglab#20)</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+
+<div class="viewcode-block" id="QuestionRow">
+<a class="viewcode-back" href="../../_autosummary/raglab.bench.html#raglab.bench.QuestionRow">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuestionRow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One question: source calls and hits of the loop and of a single discover."""</span>
+
+    <span class="n">question</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">calls_loop</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">calls_single</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">hits_loop</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">hits_single</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1">#: share of the loop's hits that a single discover also returned (1.0: the loop added nothing)</span>
+    <span class="n">single_recall_of_loop</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="c1">#: with ``relevant``: share of the relevant ids each variant returned (else ``None``)</span>
+    <span class="n">recall_loop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">recall_single</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="LoopVsSingleReport">
+<a class="viewcode-back" href="../../_autosummary/raglab.bench.html#raglab.bench.LoopVsSingleReport">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoopVsSingleReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Totals over the questions, with the per-question ``rows``."""</span>
+
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuestionRow</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calls_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">calls_loop</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calls_single</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">calls_single</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Source calls the loop makes per call of a single discover (``1.0``: no extra)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calls_loop</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">calls_single</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calls_single</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">single_recall_of_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mean share of the loop's hits a single discover also returned."""</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">single_recall_of_loop</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="k">else</span> <span class="mf">1.0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recall_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span><span class="p">(</span><span class="s2">"recall_loop"</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recall_single</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span><span class="p">(</span><span class="s2">"recall_single"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="loop_vs_single_benchmark">
+<a class="viewcode-back" href="../../_autosummary/raglab.bench.html#raglab.bench.loop_vs_single_benchmark">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">loop_vs_single_benchmark</span><span class="p">(</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Retriever</span><span class="p">],</span>
+    <span class="n">questions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">relevant</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">agent_factory</span><span class="p">:</span> <span class="n">AgentFactory</span> <span class="o">=</span> <span class="n">make_search_agent</span><span class="p">,</span>
+    <span class="n">single_budget</span><span class="p">:</span> <span class="n">Budget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">loop_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoopVsSingleReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run each question through the agent loop and through a single discover; compare.</span>
+
+<span class="sd">    The *single* run is the same agent with ``single_budget`` (default one round, one</span>
+<span class="sd">    pass over the sources) and none of ``loop_kwargs``: no LLM roles, so no rewriting</span>
+<span class="sd">    and no back-edge. The *loop* run gets ``loop_kwargs`` (``formulator``, ``evaluator``,</span>
+<span class="sd">    ``planner``, ``budget``...). Both count their retriever calls. ``relevant`` maps a</span>
+<span class="sd">    question to the artifact ids that answer it, and adds recall against that ground</span>
+<span class="sd">    truth; without it the report says how much of the loop's answer a single discover</span>
+<span class="sd">    already had, and what the loop costs in extra source calls. Offline when the roles</span>
+<span class="sd">    are: pass fakes, or live sources for a real measurement.</span>
+<span class="sd">    """</span>
+    <span class="n">single_budget</span> <span class="o">=</span> <span class="n">single_budget</span> <span class="ow">or</span> <span class="n">Budget</span><span class="p">(</span><span class="n">max_rounds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">questions</span><span class="p">):</span>
+        <span class="n">loop_calls</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">single_calls</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">agent_factory</span><span class="p">(</span><span class="n">_Counting</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">loop_calls</span><span class="p">),</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">loop_kwargs</span><span class="p">)</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="n">agent_factory</span><span class="p">(</span>
+            <span class="n">_Counting</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">single_calls</span><span class="p">),</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="n">single_budget</span>
+        <span class="p">)</span>
+        <span class="n">loop_hits</span> <span class="o">=</span> <span class="p">{</span><span class="n">_hit_key</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">loop</span><span class="p">(</span><span class="n">question</span><span class="p">)}</span>
+        <span class="n">single_hits</span> <span class="o">=</span> <span class="p">{</span><span class="n">_hit_key</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">single</span><span class="p">(</span><span class="n">question</span><span class="p">)}</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">loop_hits</span> <span class="o">&amp;</span> <span class="n">single_hits</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">loop_hits</span><span class="p">)</span> <span class="k">if</span> <span class="n">loop_hits</span> <span class="k">else</span> <span class="mf">1.0</span>
+        <span class="n">truth</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">relevant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">relevant</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="p">()))</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">QuestionRow</span><span class="p">(</span>
+                <span class="n">question</span><span class="p">,</span>
+                <span class="n">calls_loop</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">loop_calls</span><span class="p">),</span>
+                <span class="n">calls_single</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">single_calls</span><span class="p">),</span>
+                <span class="n">hits_loop</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">loop_hits</span><span class="p">),</span>
+                <span class="n">hits_single</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">single_hits</span><span class="p">),</span>
+                <span class="n">single_recall_of_loop</span><span class="o">=</span><span class="n">shared</span><span class="p">,</span>
+                <span class="n">recall_loop</span><span class="o">=</span><span class="n">_recall</span><span class="p">(</span><span class="n">loop_hits</span><span class="p">,</span> <span class="n">truth</span><span class="p">),</span>
+                <span class="n">recall_single</span><span class="o">=</span><span class="n">_recall</span><span class="p">(</span><span class="n">single_hits</span><span class="p">,</span> <span class="n">truth</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">LoopVsSingleReport</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">rows</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_recall</span><span class="p">(</span><span class="n">hits</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">truth</span><span class="p">:</span> <span class="nb">set</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Share of the ``truth`` ids among ``hits`` (``None`` without ground truth)."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">truth</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">({</span><span class="n">artifact_id</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">artifact_id</span> <span class="ow">in</span> <span class="n">hits</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">truth</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">truth</span><span class="p">)</span>
 </pre></div>
 
                 </article>

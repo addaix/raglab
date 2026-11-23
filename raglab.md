@@ -1,4 +1,4 @@
-> built 2026-11-23 06:10 UTC from 2de8828 (main) · raglab 0.2.12. Details: build_info.json
+> built 2026-11-23 07:55 UTC from 11b7e34 (main) · raglab 0.2.13. Details: build_info.json
 
 # index.html.md
 
@@ -662,12 +662,15 @@ report.sweeps_saved, report.recall
 | [`cross_run_benchmark`](_autosummary/raglab.bench.html.md#raglab.bench.cross_run_benchmark)(sources, workload, \*[, ...])   | Replay `workload` (purposes, in order, repeats and paraphrases welcome) cold and warm, and report what memory saved and what it lost.   |
 |------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | [`extraction_counts`](_autosummary/raglab.bench.html.md#raglab.bench.extraction_counts)(store)                            | `{purpose: number of units kept}` (each purpose under its own statement).                                                               |
+| [`loop_vs_single_benchmark`](_autosummary/raglab.bench.html.md#raglab.bench.loop_vs_single_benchmark)(sources, questions, \*)    | Run each question through the agent loop and through a single discover; compare.                                                        |
 
 ### Classes
 
-| [`CrossRunReport`](_autosummary/raglab.bench.html.md#raglab.bench.CrossRunReport)(rows[, extractions])   | Totals over a workload, with the per-purpose `rows` and `extractions`.       |
-|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`PurposeRow`](_autosummary/raglab.bench.html.md#raglab.bench.PurposeRow)(purpose, sweeps_cold, ...) | One purpose of the workload: its source calls cold and warm, and its recall. |
+| [`CrossRunReport`](_autosummary/raglab.bench.html.md#raglab.bench.CrossRunReport)(rows[, extractions])           | Totals over a workload, with the per-purpose `rows` and `extractions`.       |
+|------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`LoopVsSingleReport`](_autosummary/raglab.bench.html.md#raglab.bench.LoopVsSingleReport)(rows)                      | Totals over the questions, with the per-question `rows`.                     |
+| [`PurposeRow`](_autosummary/raglab.bench.html.md#raglab.bench.PurposeRow)(purpose, sweeps_cold, ...)         | One purpose of the workload: its source calls cold and warm, and its recall. |
+| [`QuestionRow`](_autosummary/raglab.bench.html.md#raglab.bench.QuestionRow)(question, calls_loop, ...[, ...]) | One question: source calls and hits of the loop and of a single discover.    |
 
 ### *class* raglab.bench.CrossRunReport(rows, extractions=dict())
 
@@ -683,11 +686,48 @@ Mean, over purposes, of the share of cold hits the warm run also returned.
 
 Share of the cold source calls the warm run did not make.
 
+### *class* raglab.bench.LoopVsSingleReport(rows)
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+Totals over the questions, with the per-question `rows`.
+
+#### *property* extra_calls *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+no extra).
+
+* **Type:**
+  Source calls the loop makes per call of a single discover (`1.0`
+
+#### *property* single_recall_of_loop *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+Mean share of the loop’s hits a single discover also returned.
+
 ### *class* raglab.bench.PurposeRow(purpose, sweeps_cold, sweeps_warm, recall)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 One purpose of the workload: its source calls cold and warm, and its recall.
+
+### *class* raglab.bench.QuestionRow(question, calls_loop, calls_single, hits_loop, hits_single, single_recall_of_loop, recall_loop=None, recall_single=None)
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+One question: source calls and hits of the loop and of a single discover.
+
+#### recall_loop *: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+share of the relevant ids each variant returned (else `None`)
+
+* **Type:**
+  with `relevant`
+
+#### single_recall_of_loop *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+the loop added nothing)
+
+* **Type:**
+  share of the loop’s hits that a single discover also returned (1.0
 
 ### raglab.bench.cross_run_benchmark(sources, workload, \*, agent_factory=<function make_search_agent>, memory_factory=<class 'raglab.memory.PurposeStore'>, \*\*agent_kwargs)
 
@@ -715,6 +755,22 @@ The warm agent shares one `memory_factory()` store across the whole workload.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
+
+### raglab.bench.loop_vs_single_benchmark(sources, questions, \*, relevant=None, agent_factory=<function make_search_agent>, single_budget=None, \*\*loop_kwargs)
+
+Run each question through the agent loop and through a single discover; compare.
+
+The *single* run is the same agent with `single_budget` (default one round, one
+pass over the sources) and none of `loop_kwargs`: no LLM roles, so no rewriting
+and no back-edge. The *loop* run gets `loop_kwargs` (`formulator`, `evaluator`,
+`planner`, `budget`…). Both count their retriever calls. `relevant` maps a
+question to the artifact ids that answer it, and adds recall against that ground
+truth; without it the report says how much of the loop’s answer a single discover
+already had, and what the loop costs in extra source calls. Offline when the roles
+are: pass fakes, or live sources for a real measurement.
+
+* **Return type:**
+  [`LoopVsSingleReport`](_autosummary/raglab.bench.html.md#raglab.bench.LoopVsSingleReport)
 
 
 # _autosummary/raglab.html.md
@@ -1981,18 +2037,16 @@ Label `corpus` for each of `facets` with a graded judge; see the module.
 
 # About this build
 
-This documentation was built on **2026-11-23 06:10 UTC** from commit <a href="https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c"><code>2de8828</code></a> on branch <code>main</code>, for **raglab 0.2.12** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-23 07:55 UTC** from commit <a href="https://github.com/addaix/raglab/commit/11b7e3444e639f490fdb8002593418c9f79a18b6"><code>11b7e34</code></a> on branch <code>main</code>, for **raglab 0.2.13** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.2.12) is behind the latest release on PyPI (0.2.13): `pip install raglab` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                      |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/raglab/commit/2de882861c5b6db8b3128b48593cdae2d1c1d07c"><code>2de882861c5b6db8b3128b48593cdae2d1c1d07c</code></a> |
+| Commit              | <a href="https://github.com/addaix/raglab/commit/11b7e3444e639f490fdb8002593418c9f79a18b6"><code>11b7e3444e639f490fdb8002593418c9f79a18b6</code></a> |
 | Branch              | <code>main</code>                                                                                                                                    |
 | Tags at this commit | none                                                                                                                                                 |
 | Working tree        | clean                                                                                                                                                |
@@ -2003,15 +2057,15 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/raglab</code>                                                                 |
-| Run          | <a href="https://github.com/addaix/raglab/actions/runs/45122170170">45122170170</a>        |
+| Run          | <a href="https://github.com/addaix/raglab/actions/runs/45134504971">45134504971</a>        |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>2de882861c5b6db8b3128b48593cdae2d1c1d07c</code> (in the history of the built commit) |
+| Event commit | <code>11b7e3444e639f490fdb8002593418c9f79a18b6</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.23  |
+| epythet  | 0.2.24  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.16 |
@@ -2030,14 +2084,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/raglab/0.2.13/">0.2.13</a>, newer than the documented version (0.2.12).
+Latest release: <a href="https://pypi.org/project/raglab/0.2.13/">0.2.13</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/addaix/raglab && cd raglab
-git checkout 2de882861c5b6db8b3128b48593cdae2d1c1d07c
-pip install "epythet==0.2.23"
+git checkout 11b7e3444e639f490fdb8002593418c9f79a18b6
+pip install "epythet==0.2.24"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

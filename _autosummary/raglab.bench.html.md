@@ -31,12 +31,15 @@ report.sweeps_saved, report.recall
 | [`cross_run_benchmark`](#raglab.bench.cross_run_benchmark)(sources, workload, \*[, ...])   | Replay `workload` (purposes, in order, repeats and paraphrases welcome) cold and warm, and report what memory saved and what it lost.   |
 |------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | [`extraction_counts`](#raglab.bench.extraction_counts)(store)                            | `{purpose: number of units kept}` (each purpose under its own statement).                                                               |
+| [`loop_vs_single_benchmark`](#raglab.bench.loop_vs_single_benchmark)(sources, questions, \*)    | Run each question through the agent loop and through a single discover; compare.                                                        |
 
 ### Classes
 
-| [`CrossRunReport`](#raglab.bench.CrossRunReport)(rows[, extractions])   | Totals over a workload, with the per-purpose `rows` and `extractions`.       |
-|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`PurposeRow`](#raglab.bench.PurposeRow)(purpose, sweeps_cold, ...) | One purpose of the workload: its source calls cold and warm, and its recall. |
+| [`CrossRunReport`](#raglab.bench.CrossRunReport)(rows[, extractions])           | Totals over a workload, with the per-purpose `rows` and `extractions`.       |
+|------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`LoopVsSingleReport`](#raglab.bench.LoopVsSingleReport)(rows)                      | Totals over the questions, with the per-question `rows`.                     |
+| [`PurposeRow`](#raglab.bench.PurposeRow)(purpose, sweeps_cold, ...)         | One purpose of the workload: its source calls cold and warm, and its recall. |
+| [`QuestionRow`](#raglab.bench.QuestionRow)(question, calls_loop, ...[, ...]) | One question: source calls and hits of the loop and of a single discover.    |
 
 ### *class* raglab.bench.CrossRunReport(rows, extractions=dict())
 
@@ -52,11 +55,48 @@ Mean, over purposes, of the share of cold hits the warm run also returned.
 
 Share of the cold source calls the warm run did not make.
 
+### *class* raglab.bench.LoopVsSingleReport(rows)
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+Totals over the questions, with the per-question `rows`.
+
+#### *property* extra_calls *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+no extra).
+
+* **Type:**
+  Source calls the loop makes per call of a single discover (`1.0`
+
+#### *property* single_recall_of_loop *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+Mean share of the loop’s hits a single discover also returned.
+
 ### *class* raglab.bench.PurposeRow(purpose, sweeps_cold, sweeps_warm, recall)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
 One purpose of the workload: its source calls cold and warm, and its recall.
+
+### *class* raglab.bench.QuestionRow(question, calls_loop, calls_single, hits_loop, hits_single, single_recall_of_loop, recall_loop=None, recall_single=None)
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+One question: source calls and hits of the loop and of a single discover.
+
+#### recall_loop *: [float](https://docs.python.org/3/builtins/functions.html#float) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+
+share of the relevant ids each variant returned (else `None`)
+
+* **Type:**
+  with `relevant`
+
+#### single_recall_of_loop *: [float](https://docs.python.org/3/builtins/functions.html#float)*
+
+the loop added nothing)
+
+* **Type:**
+  share of the loop’s hits that a single discover also returned (1.0
 
 ### raglab.bench.cross_run_benchmark(sources, workload, \*, agent_factory=<function make_search_agent>, memory_factory=<class 'raglab.memory.PurposeStore'>, \*\*agent_kwargs)
 
@@ -84,3 +124,19 @@ The warm agent shares one `memory_factory()` store across the whole workload.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
+
+### raglab.bench.loop_vs_single_benchmark(sources, questions, \*, relevant=None, agent_factory=<function make_search_agent>, single_budget=None, \*\*loop_kwargs)
+
+Run each question through the agent loop and through a single discover; compare.
+
+The *single* run is the same agent with `single_budget` (default one round, one
+pass over the sources) and none of `loop_kwargs`: no LLM roles, so no rewriting
+and no back-edge. The *loop* run gets `loop_kwargs` (`formulator`, `evaluator`,
+`planner`, `budget`…). Both count their retriever calls. `relevant` maps a
+question to the artifact ids that answer it, and adds recall against that ground
+truth; without it the report says how much of the loop’s answer a single discover
+already had, and what the loop costs in extra source calls. Offline when the roles
+are: pass fakes, or live sources for a real measurement.
+
+* **Return type:**
+  [`LoopVsSingleReport`](#raglab.bench.LoopVsSingleReport)

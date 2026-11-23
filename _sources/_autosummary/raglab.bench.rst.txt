@@ -10,11 +10,14 @@ raglab.bench
    
       cross_run_benchmark
       extraction_counts
+      loop_vs_single_benchmark
    
    .. rubric:: Classes
 
    .. autosummary::
    
       CrossRunReport
+      LoopVsSingleReport
       PurposeRow
+      QuestionRow
    
