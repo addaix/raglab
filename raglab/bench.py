@@ -29,7 +29,7 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from .agent import Retriever, make_search_agent
+from .agent import Budget, Retriever, make_search_agent
 from .memory import PurposeStore, purpose_id
 
 AgentFactory = Callable[..., Callable[[str], list]]
@@ -155,3 +155,117 @@ def cross_run_benchmark(
             )
         )
     return CrossRunReport(tuple(rows), extraction_counts(store))
+
+
+# --------------------------------------------------------------------------- #
+# Loop vs single discover (raglab#20)
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(frozen=True)
+class QuestionRow:
+    """One question: source calls and hits of the loop and of a single discover."""
+
+    question: str
+    calls_loop: int
+    calls_single: int
+    hits_loop: int
+    hits_single: int
+    #: share of the loop's hits that a single discover also returned (1.0: the loop added nothing)
+    single_recall_of_loop: float
+    #: with ``relevant``: share of the relevant ids each variant returned (else ``None``)
+    recall_loop: float | None = None
+    recall_single: float | None = None
+
+
+@dataclass(frozen=True)
+class LoopVsSingleReport:
+    """Totals over the questions, with the per-question ``rows``."""
+
+    rows: tuple[QuestionRow, ...]
+
+    @property
+    def calls_loop(self) -> int:
+        return sum(r.calls_loop for r in self.rows)
+
+    @property
+    def calls_single(self) -> int:
+        return sum(r.calls_single for r in self.rows)
+
+    @property
+    def extra_calls(self) -> float:
+        """Source calls the loop makes per call of a single discover (``1.0``: no extra)."""
+        return self.calls_loop / self.calls_single if self.calls_single else 0.0
+
+    @property
+    def single_recall_of_loop(self) -> float:
+        """Mean share of the loop's hits a single discover also returned."""
+        n = len(self.rows)
+        return sum(r.single_recall_of_loop for r in self.rows) / n if n else 1.0
+
+    def _mean(self, name: str) -> float | None:
+        values = [getattr(r, name) for r in self.rows if getattr(r, name) is not None]
+        return sum(values) / len(values) if values else None
+
+    @property
+    def recall_loop(self) -> float | None:
+        return self._mean("recall_loop")
+
+    @property
+    def recall_single(self) -> float | None:
+        return self._mean("recall_single")
+
+
+def loop_vs_single_benchmark(
+    sources: Mapping[str, Retriever],
+    questions: Iterable[str],
+    *,
+    relevant: Mapping[str, Iterable[str]] | None = None,
+    agent_factory: AgentFactory = make_search_agent,
+    single_budget: Budget | None = None,
+    **loop_kwargs: Any,
+) -> LoopVsSingleReport:
+    """Run each question through the agent loop and through a single discover; compare.
+
+    The *single* run is the same agent with ``single_budget`` (default one round, one
+    pass over the sources) and none of ``loop_kwargs``: no LLM roles, so no rewriting
+    and no back-edge. The *loop* run gets ``loop_kwargs`` (``formulator``, ``evaluator``,
+    ``planner``, ``budget``...). Both count their retriever calls. ``relevant`` maps a
+    question to the artifact ids that answer it, and adds recall against that ground
+    truth; without it the report says how much of the loop's answer a single discover
+    already had, and what the loop costs in extra source calls. Offline when the roles
+    are: pass fakes, or live sources for a real measurement.
+    """
+    single_budget = single_budget or Budget(max_rounds=1)
+    rows = []
+    for question in list(questions):
+        loop_calls: list = []
+        single_calls: list = []
+        loop = agent_factory(_Counting(sources, loop_calls), memory=None, **loop_kwargs)
+        single = agent_factory(
+            _Counting(sources, single_calls), memory=None, budget=single_budget
+        )
+        loop_hits = {_hit_key(h) for h in loop(question)}
+        single_hits = {_hit_key(h) for h in single(question)}
+        shared = len(loop_hits & single_hits) / len(loop_hits) if loop_hits else 1.0
+        truth = None if relevant is None else set(relevant.get(question, ()))
+        rows.append(
+            QuestionRow(
+                question,
+                calls_loop=len(loop_calls),
+                calls_single=len(single_calls),
+                hits_loop=len(loop_hits),
+                hits_single=len(single_hits),
+                single_recall_of_loop=shared,
+                recall_loop=_recall(loop_hits, truth),
+                recall_single=_recall(single_hits, truth),
+            )
+        )
+    return LoopVsSingleReport(tuple(rows))
+
+
+def _recall(hits: set, truth: set | None) -> float | None:
+    """Share of the ``truth`` ids among ``hits`` (``None`` without ground truth)."""
+    if not truth:
+        return None
+    return len({artifact_id for _, artifact_id in hits} & truth) / len(truth)

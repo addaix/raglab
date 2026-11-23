@@ -69,3 +69,37 @@ def test_extractions_count_each_purpose_own_units_even_with_an_embedder():
         memory_factory=lambda: PurposeStore(embedder=_bag_embedder),
     )
     assert report.extractions == {"invoices 2023": 1}
+
+
+# --- loop vs single discover (raglab#20) ---------------------------------------------
+
+
+def test_loop_vs_single_counts_the_extra_calls_and_the_hits_only_the_loop_finds():
+    from raglab.agent import Judgement, SubTask
+    from raglab.bench import loop_vs_single_benchmark
+
+    def retrieve(query, **kw):
+        return _hits("a", "b") if query == "q" else _hits("c")
+
+    def evaluator(task, results):
+        if task.goal == "q":  # first round: not enough, re-query with a refinement
+            return Judgement(relevant=results, sufficient=False, refinement=SubTask("q2", task.sources))
+        return Judgement(relevant=results, sufficient=True)
+
+    report = loop_vs_single_benchmark(
+        {"s": retrieve}, ["q"], relevant={"q": ["a", "c"]}, evaluator=evaluator
+    )
+    (row,) = report.rows
+    assert (row.calls_single, row.calls_loop) == (1, 2)
+    assert report.extra_calls == 2.0
+    assert row.hits_single == 2 and row.hits_loop >= 3
+    assert row.single_recall_of_loop < 1.0
+    assert report.recall_single == 0.5 and report.recall_loop == 1.0
+
+
+def test_loop_vs_single_with_no_loop_roles_is_identical():
+    from raglab.bench import loop_vs_single_benchmark
+
+    report = loop_vs_single_benchmark({"s": _static("a", "b")}, ["q1", "q2"])
+    assert report.extra_calls == 1.0 and report.single_recall_of_loop == 1.0
+    assert report.recall_loop is None
