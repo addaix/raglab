@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "raglab"
-version = "0.2.12"
+version = "0.2.13"
 description = "A medley of tools to make RAG-based applications."
 readme = "README.md"
 requires-python = ">=3.10"
